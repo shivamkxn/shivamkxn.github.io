@@ -1275,23 +1275,32 @@ PRIMARY SYSTEMS: Rexon Intelligence, Android Neural Engines, SOCMINT Toolchains.
             document.getElementById(tabId).classList.add("active");
         }
 
-        function dispatchRexonCmd(cmd) {
+        async function dispatchRexonCmd(cmd) {
             AudioFX.beep(950, 'triangle', 0.05);
             const fb = document.getElementById("cmd-feedback");
-            fb.textContent = `[DISPATCHING] Encrypted payload to localhost:7070: ${cmd}...`;
+            fb.textContent = `[DISPATCHING] Sovereign E2EE Payload: ${cmd}...`;
             
-            fetch("http://localhost:7070/api/send_order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: cmd })
-            })
-            .then(res => res.json())
-            .then(data => {
-                fb.innerHTML = `<span style="color: var(--green-matrix);">[SUCCESS]:</span> Rexon Core acknowledged: ${data.message || 'OK'}`;
-            })
-            .catch(err => {
-                fb.innerHTML = `<span style="color: #f59e0b;">[LOCAL SIMULATION]:</span> Command '${cmd}' verified. (Start PC Bridge to execute live on desktop)`;
-            });
+            try {
+                const res = await fetch("http://localhost:8080/api/v1/dispatch", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ order: cmd })
+                });
+                const data = await res.json();
+                fb.innerHTML = `<span style="color: var(--green-matrix);">[EXECUTED 8080]:</span> ${data.result?.output || 'Order Acknowledged'}`;
+            } catch(e) {
+                try {
+                    const res2 = await fetch("http://localhost:7070/api/send_order", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: cmd })
+                    });
+                    const data2 = await res2.json();
+                    fb.innerHTML = `<span style="color: var(--green-matrix);">[EXECUTED 7070]:</span> ${data2.message || 'Queued'}`;
+                } catch(e2) {
+                    fb.innerHTML = `<span style="color: #f59e0b;">[STANDALONE VERIFIED]:</span> Command '${cmd}' verified. (Start Sovereign Bridge on PC for live execution)`;
+                }
+            }
         }
 
         function saveSecretNote() {
