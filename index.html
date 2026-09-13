@@ -16,28 +16,37 @@
             --cyan-neon: #00f3ff;
             --pink-quantum: #ff007f;
             --purple-core: #8a2be2;
-            --bg-black: #050505;
+            --bg-black: #000000;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { background: var(--bg-black); color: #fff; font-family: 'Fira Code', monospace; overflow: hidden; height: 100vh; }
+        body, html { background: var(--bg-black); color: #fff; font-family: 'Fira Code', monospace; overflow-x: hidden; }
         
-        /* Anime.js Staggered Grid Background */
+        /* 96 Frames Canvas Background (Scrollable) */
+        #scroll-canvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; background: #000;
+        }
+
+        /* Anime.js Staggered Grid Overlay */
         #grid-wrapper {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2;
             display: flex; flex-wrap: wrap; justify-content: center; align-items: center; overflow: hidden;
         }
         .grid-block {
-            width: 40px; height: 40px; border: 1px solid rgba(0, 243, 255, 0.05);
-            background-color: rgba(255,255,255, 0.01); cursor: crosshair;
+            width: 40px; height: 40px; border: 1px solid rgba(0, 243, 255, 0.03);
+            background-color: rgba(255,255,255, 0.0); cursor: crosshair;
             transition: border-color 0.3s;
         }
         
         /* Radial Gradient Overlay for depth */
         .vignette {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 2;
-            background: radial-gradient(circle at 50% 50%, transparent 20%, #000000 95%);
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 3;
+            background: radial-gradient(circle at 50% 50%, transparent 20%, #000000 95%),
+                        linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.8) 100%);
         }
+
+        /* Scroll Driver to allow scrolling */
+        .scroll-driver { height: 300vh; width: 100vw; pointer-events: none; position: absolute; z-index: 0; top: 0; left: 0; }
 
         /* Gatekeeper UI */
         .gatekeeper-ui {
@@ -48,8 +57,8 @@
 
         .brand-text { 
             font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 900; 
-            letter-spacing: 12px; color: #fff; text-transform: uppercase; margin-bottom: 5px; 
-            text-align: center; opacity: 0; transform: translateY(30px);
+            letter-spacing: 12px; color: #fff; text-shadow: 0 0 40px rgba(0,243,255,0.2); 
+            text-transform: uppercase; margin-bottom: 5px; text-align: center; opacity: 0; transform: translateY(30px);
         }
         .status-text { 
             font-size: 0.85rem; color: var(--cyan-neon); letter-spacing: 6px; text-transform: uppercase; 
@@ -57,7 +66,7 @@
         }
 
         .btn-init {
-            pointer-events: auto; background: rgba(0,0,0,0.8); border: 1px solid var(--cyan-neon); 
+            pointer-events: auto; background: rgba(0,0,0,0.7); border: 1px solid var(--cyan-neon); 
             color: var(--cyan-neon); padding: 18px 40px; font-family: 'Orbitron', sans-serif; 
             font-size: 1.1rem; font-weight: 600; letter-spacing: 6px; cursor: pointer; border-radius: 4px; 
             transition: all 0.3s ease; box-shadow: 0 0 25px rgba(0,243,255,0.15); opacity: 0;
@@ -83,10 +92,10 @@
 
         .modal-error { display: none; color: #ef4444; font-size: 0.8rem; padding: 10px; background: rgba(239,68,68,0.1); border: 1px solid #ef4444; border-radius: 4px; margin-bottom: 20px; text-align: center; }
 
-        /* Decrypted Stash (Hidden for Public) */
+        /* Decrypted Stash */
         #decrypted-workspace {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 500;
-            display: none; padding: 40px; overflow-y: auto;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 500;
+            display: none; padding: 40px; overflow-y: auto; backdrop-filter: blur(30px);
         }
         .workspace-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 30px; }
         .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
@@ -101,9 +110,15 @@
 </head>
 <body>
 
+    <!-- Video Frames Scroll Canvas -->
+    <canvas id="scroll-canvas"></canvas>
+    
     <!-- The Staggered Anime.js Grid -->
     <div id="grid-wrapper"></div>
     <div class="vignette"></div>
+    
+    <!-- Allows scrolling to drive the canvas -->
+    <div class="scroll-driver"></div>
 
     <!-- The Public Face -->
     <div class="gatekeeper-ui" id="gatekeeper">
@@ -134,7 +149,7 @@
         </div>
     </div>
 
-    <!-- The True Decrypted Core (Only for Unknxwc) -->
+    <!-- The True Decrypted Core -->
     <div id="decrypted-workspace">
         <div class="workspace-header">
             <div>
@@ -167,6 +182,44 @@
     </div>
 
     <script>
+        // --- 96 FRAMES CANVAS ENGINE ---
+        const canvas = document.getElementById("scroll-canvas");
+        const ctx = canvas.getContext("2d");
+        const TOTAL_FRAMES = 96;
+        const frameImages = [];
+        let loadedFrames = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            renderFrame(Math.floor(window.scrollY / (Math.max(document.documentElement.scrollHeight - window.innerHeight, 1)) * (TOTAL_FRAMES - 1)));
+        }
+        window.addEventListener("resize", resizeCanvas);
+
+        for (let i = 1; i <= TOTAL_FRAMES; i++) {
+            const img = new Image();
+            img.src = `frames/frame_${String(i).padStart(4, '0')}.jpg`;
+            img.onload = () => { loadedFrames++; if(loadedFrames===1) resizeCanvas(); };
+            frameImages.push(img);
+        }
+
+        function renderFrame(index) {
+            const img = frameImages[Math.min(Math.max(index, 0), frameImages.length - 1)];
+            if (!img || !img.complete) return;
+            const cW = canvas.width, cH = canvas.height;
+            const ratio = Math.max(cW / img.naturalWidth, cH / img.naturalHeight);
+            const dW = img.naturalWidth * ratio, dH = img.naturalHeight * ratio;
+            const dX = (cW - dW) / 2, dY = (cH - dH) / 2;
+            ctx.clearRect(0, 0, cW, cH);
+            ctx.drawImage(img, dX, dY, dW, dH);
+        }
+
+        window.addEventListener("scroll", () => {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+            renderFrame(Math.floor(progress * (TOTAL_FRAMES - 1)));
+        });
+
         // --- ANIME.JS STAGGERED GRID ENGINE ---
         const wrapper = document.getElementById('grid-wrapper');
         let columns = 0, rows = 0;
@@ -175,9 +228,9 @@
 
         function createGrid() {
             wrapper.innerHTML = '';
-            const size = 50; // block size
+            const size = 60; // Block size - larger so we can see the video clearly
             columns = Math.floor(document.body.clientWidth / size);
-            rows = Math.floor(document.body.clientHeight / size);
+            rows = Math.floor(window.innerHeight / size); // Use window height
             
             wrapper.style.width = `${columns * size}px`;
             wrapper.style.height = `${rows * size}px`;
@@ -196,44 +249,22 @@
             anime({
                 targets: '.grid-block',
                 scale: [
-                    {value: 0.1, easing: 'easeOutSine', duration: 400},
-                    {value: 1, easing: 'easeInOutQuad', duration: 900}
+                    {value: 0.2, easing: 'easeOutSine', duration: 300},
+                    {value: 1, easing: 'easeInOutQuad', duration: 800}
                 ],
-                backgroundColor: isToggled ? 'rgba(0, 243, 255, 0.2)' : 'rgba(255, 255, 255, 0.01)',
-                borderColor: isToggled ? 'rgba(0, 243, 255, 0.6)' : 'rgba(0, 243, 255, 0.05)',
-                delay: anime.stagger(100, {grid: [columns, rows], from: index})
+                backgroundColor: isToggled ? 'rgba(0, 243, 255, 0.15)' : 'rgba(255, 255, 255, 0.0)',
+                borderColor: isToggled ? 'rgba(0, 243, 255, 0.4)' : 'rgba(0, 243, 255, 0.03)',
+                delay: anime.stagger(60, {grid: [columns, rows], from: index})
             });
         }
 
-        window.onresize = createGrid;
+        window.addEventListener('resize', createGrid);
         createGrid();
 
         // Initial Entry Animation
-        anime({
-            targets: '#title',
-            translateY: [40, 0],
-            opacity: [0, 1],
-            easing: 'easeOutExpo',
-            duration: 1500,
-            delay: 500
-        });
-        
-        anime({
-            targets: '#status-log',
-            opacity: [0, 1],
-            easing: 'easeInOutQuad',
-            duration: 1000,
-            delay: 1000
-        });
-
-        anime({
-            targets: '#btn-init',
-            opacity: [0, 1],
-            scale: [0.9, 1],
-            easing: 'easeOutElastic(1, .8)',
-            duration: 1200,
-            delay: 1500
-        });
+        anime({ targets: '#title', translateY: [40, 0], opacity: [0, 1], easing: 'easeOutExpo', duration: 1500, delay: 500 });
+        anime({ targets: '#status-log', opacity: [0, 1], easing: 'easeInOutQuad', duration: 1000, delay: 1000 });
+        anime({ targets: '#btn-init', opacity: [0, 1], scale: [0.9, 1], easing: 'easeOutElastic(1, .8)', duration: 1200, delay: 1500 });
 
         // Ambient idle grid animation
         setInterval(() => {
@@ -242,10 +273,10 @@
             anime({
                 targets: '.grid-block',
                 opacity: [
-                    {value: 0.2, easing: 'easeOutSine', duration: 600},
-                    {value: 1, easing: 'easeInOutQuad', duration: 1000}
+                    {value: 0.3, easing: 'easeOutSine', duration: 800},
+                    {value: 1, easing: 'easeInOutQuad', duration: 1200}
                 ],
-                delay: anime.stagger(200, {grid: [columns, rows], from: centerIndex})
+                delay: anime.stagger(150, {grid: [columns, rows], from: centerIndex})
             });
         }, 8000);
 
@@ -255,8 +286,7 @@
             if (!synth) { if(callback) callback(); return; }
             
             const utter = new SpeechSynthesisUtterance(text);
-            utter.rate = 0.95; 
-            utter.pitch = 0.5; 
+            utter.rate = 0.95; utter.pitch = 0.5; 
             
             const voices = synth.getVoices();
             const preferred = voices.find(v => v.name.includes('UK English Male') || v.name.includes('Andrew') || (v.lang === 'en-GB' && v.name.includes('Male')));
@@ -268,8 +298,6 @@
             
             synth.speak(utter);
         }
-
-        // Initialize voices early
         window.speechSynthesis.getVoices();
 
         function triggerWakeSequence() {
@@ -277,16 +305,9 @@
             const status = document.getElementById('status-log');
             btn.style.pointerEvents = 'none';
             
-            // Trigger massive shockwave from center
             triggerShockwave(Math.floor((columns * rows) / 2));
 
-            anime({
-                targets: '#btn-init, #title',
-                opacity: 0,
-                translateY: -20,
-                duration: 600,
-                easing: 'easeInQuad'
-            });
+            anime({ targets: '#btn-init, #title', opacity: 0, translateY: -20, duration: 600, easing: 'easeInQuad' });
             
             setTimeout(() => {
                 status.style.color = '#fff';
