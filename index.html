@@ -9,54 +9,70 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Orbitron:wght@600;900&family=Syne:wght@800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 
     <style>
         :root {
             --cyan-neon: #00f3ff;
             --pink-quantum: #ff007f;
             --purple-core: #8a2be2;
-            --bg-black: #000000;
+            --bg-black: #050505;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { background: var(--bg-black); color: #fff; font-family: 'Fira Code', monospace; overflow-x: hidden; height: 100vh; }
+        body, html { background: var(--bg-black); color: #fff; font-family: 'Fira Code', monospace; overflow: hidden; height: 100vh; }
         
-        /* 96 Frames Canvas Background */
-        #scroll-canvas {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; background: #000;
+        /* Anime.js Staggered Grid Background */
+        #grid-wrapper {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
+            display: flex; flex-wrap: wrap; justify-content: center; align-items: center; overflow: hidden;
         }
+        .grid-block {
+            width: 40px; height: 40px; border: 1px solid rgba(0, 243, 255, 0.05);
+            background-color: rgba(255,255,255, 0.01); cursor: crosshair;
+            transition: border-color 0.3s;
+        }
+        
+        /* Radial Gradient Overlay for depth */
         .vignette {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 2;
-            background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.7) 70%, #000 100%),
-                        linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.95) 100%);
+            background: radial-gradient(circle at 50% 50%, transparent 20%, #000000 95%);
         }
 
         /* Gatekeeper UI */
         .gatekeeper-ui {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(8px); transition: opacity 0.5s ease;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;
+            transition: opacity 0.5s ease;
         }
 
-        .brand-text { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 6vw, 4rem); font-weight: 900; letter-spacing: 10px; color: #fff; text-shadow: 0 0 40px rgba(0,243,255,0.4); text-transform: uppercase; margin-bottom: 10px; text-align: center; }
-        .status-text { font-size: 0.8rem; color: var(--cyan-neon); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 40px; text-align: center; }
+        .brand-text { 
+            font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 900; 
+            letter-spacing: 12px; color: #fff; text-transform: uppercase; margin-bottom: 5px; 
+            text-align: center; opacity: 0; transform: translateY(30px);
+        }
+        .status-text { 
+            font-size: 0.85rem; color: var(--cyan-neon); letter-spacing: 6px; text-transform: uppercase; 
+            margin-bottom: 40px; text-align: center; opacity: 0;
+        }
 
         .btn-init {
-            background: rgba(0,0,0,0.6); border: 1px solid var(--cyan-neon); color: var(--cyan-neon);
-            padding: 16px 32px; font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 4px;
-            cursor: pointer; border-radius: 4px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0,243,255,0.2);
+            pointer-events: auto; background: rgba(0,0,0,0.8); border: 1px solid var(--cyan-neon); 
+            color: var(--cyan-neon); padding: 18px 40px; font-family: 'Orbitron', sans-serif; 
+            font-size: 1.1rem; font-weight: 600; letter-spacing: 6px; cursor: pointer; border-radius: 4px; 
+            transition: all 0.3s ease; box-shadow: 0 0 25px rgba(0,243,255,0.15); opacity: 0;
         }
-        .btn-init:hover { background: var(--cyan-neon); color: #000; box-shadow: 0 0 40px rgba(0,243,255,0.6); }
+        .btn-init:hover { background: var(--cyan-neon); color: #000; box-shadow: 0 0 50px rgba(0,243,255,0.5); transform: scale(1.05); }
 
         /* Vault Modal (Hidden by default) */
         .modal-backdrop {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(20px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(25px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
             opacity: 0; transition: opacity 0.4s ease;
         }
         .modal-box {
             width: 100%; max-width: 440px; background: rgba(5,8,15,0.9); border: 1px solid rgba(0,243,255,0.3);
-            border-radius: 12px; padding: 40px 30px; box-shadow: 0 0 60px rgba(0,243,255,0.1); position: relative;
+            border-radius: 12px; padding: 40px 30px; box-shadow: 0 0 60px rgba(0,243,255,0.15); position: relative;
         }
         
         .luxury-input {
@@ -77,8 +93,6 @@
         .cmd-card { background: rgba(10,15,25,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px; cursor: pointer; transition: 0.3s; }
         .cmd-card:hover { border-color: var(--cyan-neon); box-shadow: 0 0 20px rgba(0,243,255,0.2); transform: translateY(-2px); }
         
-        .scroll-driver { height: 300vh; width: 100vw; pointer-events: none; position: absolute; z-index: 0; }
-        
         /* Audio visualizer bar */
         .audio-pulse { width: 100px; height: 2px; background: var(--cyan-neon); margin: 0 auto 30px; opacity: 0; box-shadow: 0 0 10px var(--cyan-neon); }
         .audio-pulse.active { animation: pulseAudio 0.5s infinite alternate; opacity: 1; }
@@ -87,14 +101,14 @@
 </head>
 <body>
 
-    <canvas id="scroll-canvas"></canvas>
+    <!-- The Staggered Anime.js Grid -->
+    <div id="grid-wrapper"></div>
     <div class="vignette"></div>
-    <div class="scroll-driver"></div>
 
     <!-- The Public Face -->
     <div class="gatekeeper-ui" id="gatekeeper">
         <div class="audio-pulse" id="audio-pulse"></div>
-        <div class="brand-text">REXON INTELLIGENCE</div>
+        <div class="brand-text" id="title">REXON</div>
         <div class="status-text" id="status-log">SYSTEM ONLINE // AWAITING OPERATOR</div>
         
         <button class="btn-init" id="btn-init" onclick="triggerWakeSequence()">INITIALIZE</button>
@@ -116,7 +130,7 @@
             <div style="font-size: 0.75rem; color: #888; margin-bottom: 6px;">Authenticator Code:</div>
             <input type="text" id="vault-otp" class="luxury-input" maxlength="6" placeholder="000000" style="letter-spacing: 8px; text-align: center; font-size: 1.2rem;">
 
-            <button class="btn-init" style="width: 100%;" onclick="attemptUnlock()">DECRYPT ENCLAVE</button>
+            <button class="btn-init" style="pointer-events: auto; width: 100%; opacity: 1;" onclick="attemptUnlock()">DECRYPT ENCLAVE</button>
         </div>
     </div>
 
@@ -127,7 +141,7 @@
                 <h2 style="font-family: 'Syne', sans-serif; font-size: 2rem;">UNKNXWC COMMAND CORE</h2>
                 <div style="color: var(--cyan-neon); font-size: 0.8rem; margin-top: 5px;">Root Access Verified. IPC Bridge Active.</div>
             </div>
-            <button class="btn-init" style="padding: 10px 20px; font-size: 0.8rem; border-color: var(--pink-quantum); color: var(--pink-quantum);" onclick="location.reload()">LOCKDOWN</button>
+            <button class="btn-init" style="pointer-events: auto; opacity: 1; padding: 10px 20px; font-size: 0.8rem; border-color: var(--pink-quantum); color: var(--pink-quantum);" onclick="location.reload()">LOCKDOWN</button>
         </div>
 
         <div class="cmd-grid">
@@ -148,61 +162,104 @@
         <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px;">
             <h3 style="margin-bottom: 15px;">ENCRYPTED STASH (AES-GCM)</h3>
             <textarea id="stash-notes" class="luxury-input" rows="8" placeholder="Sovereign notes..."></textarea>
-            <button class="btn-init" style="padding: 10px 20px; font-size: 0.8rem;" onclick="saveStashNotes()">SAVE TO LOCAL STORAGE</button>
+            <button class="btn-init" style="pointer-events: auto; opacity: 1; padding: 10px 20px; font-size: 0.8rem;" onclick="saveStashNotes()">SAVE TO LOCAL STORAGE</button>
         </div>
     </div>
 
     <script>
-        // 96 Frames Canvas Engine
-        const canvas = document.getElementById("scroll-canvas");
-        const ctx = canvas.getContext("2d");
-        const TOTAL_FRAMES = 96;
-        const frameImages = [];
-        let loadedFrames = 0;
+        // --- ANIME.JS STAGGERED GRID ENGINE ---
+        const wrapper = document.getElementById('grid-wrapper');
+        let columns = 0, rows = 0;
+        let isToggled = false;
+        const colors = ['#00f3ff', '#ff007f', '#8a2be2'];
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            renderFrame(0);
-        }
-        window.addEventListener("resize", resizeCanvas);
+        function createGrid() {
+            wrapper.innerHTML = '';
+            const size = 50; // block size
+            columns = Math.floor(document.body.clientWidth / size);
+            rows = Math.floor(document.body.clientHeight / size);
+            
+            wrapper.style.width = `${columns * size}px`;
+            wrapper.style.height = `${rows * size}px`;
 
-        for (let i = 1; i <= TOTAL_FRAMES; i++) {
-            const img = new Image();
-            img.src = `frames/frame_${String(i).padStart(4, '0')}.jpg`;
-            img.onload = () => { loadedFrames++; if(loadedFrames===1) resizeCanvas(); };
-            frameImages.push(img);
-        }
-
-        function renderFrame(index) {
-            const img = frameImages[Math.min(index, frameImages.length - 1)];
-            if (!img || !img.complete) return;
-            const cW = canvas.width, cH = canvas.height;
-            const ratio = Math.max(cW / img.naturalWidth, cH / img.naturalHeight);
-            const dW = img.naturalWidth * ratio, dH = img.naturalHeight * ratio;
-            const dX = (cW - dW) / 2, dY = (cH - dH) / 2;
-            ctx.clearRect(0, 0, cW, cH);
-            ctx.drawImage(img, dX, dY, dW, dH);
+            for (let i = 0; i < columns * rows; i++) {
+                const block = document.createElement('div');
+                block.classList.add('grid-block');
+                block.onclick = () => triggerShockwave(i);
+                wrapper.appendChild(block);
+            }
         }
 
-        window.addEventListener("scroll", () => {
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-            renderFrame(Math.floor(progress * (TOTAL_FRAMES - 1)));
+        function triggerShockwave(index) {
+            isToggled = !isToggled;
+            
+            anime({
+                targets: '.grid-block',
+                scale: [
+                    {value: 0.1, easing: 'easeOutSine', duration: 400},
+                    {value: 1, easing: 'easeInOutQuad', duration: 900}
+                ],
+                backgroundColor: isToggled ? 'rgba(0, 243, 255, 0.2)' : 'rgba(255, 255, 255, 0.01)',
+                borderColor: isToggled ? 'rgba(0, 243, 255, 0.6)' : 'rgba(0, 243, 255, 0.05)',
+                delay: anime.stagger(100, {grid: [columns, rows], from: index})
+            });
+        }
+
+        window.onresize = createGrid;
+        createGrid();
+
+        // Initial Entry Animation
+        anime({
+            targets: '#title',
+            translateY: [40, 0],
+            opacity: [0, 1],
+            easing: 'easeOutExpo',
+            duration: 1500,
+            delay: 500
+        });
+        
+        anime({
+            targets: '#status-log',
+            opacity: [0, 1],
+            easing: 'easeInOutQuad',
+            duration: 1000,
+            delay: 1000
         });
 
-        // Andrew / Jarvis Voice Synthesizer
+        anime({
+            targets: '#btn-init',
+            opacity: [0, 1],
+            scale: [0.9, 1],
+            easing: 'easeOutElastic(1, .8)',
+            duration: 1200,
+            delay: 1500
+        });
+
+        // Ambient idle grid animation
+        setInterval(() => {
+            if(document.getElementById('gatekeeper').style.display === 'none') return;
+            const centerIndex = Math.floor((columns * rows) / 2);
+            anime({
+                targets: '.grid-block',
+                opacity: [
+                    {value: 0.2, easing: 'easeOutSine', duration: 600},
+                    {value: 1, easing: 'easeInOutQuad', duration: 1000}
+                ],
+                delay: anime.stagger(200, {grid: [columns, rows], from: centerIndex})
+            });
+        }, 8000);
+
+        // --- ANDREW / JARVIS VOICE SYNTHESIZER ---
         function speak(text, callback) {
             const synth = window.speechSynthesis;
             if (!synth) { if(callback) callback(); return; }
             
             const utter = new SpeechSynthesisUtterance(text);
-            utter.rate = 0.92; // Authoritative and slightly slow
-            utter.pitch = 0.5; // Deep voice
+            utter.rate = 0.95; 
+            utter.pitch = 0.5; 
             
-            // Try to find a British or Deep Male voice
             const voices = synth.getVoices();
-            const preferred = voices.find(v => v.name.includes('Google UK English Male') || v.name.includes('Andrew') || (v.lang === 'en-GB' && v.name.includes('Male')));
+            const preferred = voices.find(v => v.name.includes('UK English Male') || v.name.includes('Andrew') || (v.lang === 'en-GB' && v.name.includes('Male')));
             if (preferred) utter.voice = preferred;
 
             const pulse = document.getElementById('audio-pulse');
@@ -212,33 +269,44 @@
             synth.speak(utter);
         }
 
+        // Initialize voices early
+        window.speechSynthesis.getVoices();
+
         function triggerWakeSequence() {
             const btn = document.getElementById('btn-init');
             const status = document.getElementById('status-log');
-            btn.style.display = 'none';
-            status.style.color = '#fff';
-            status.textContent = 'INITIALIZING AUDIO SUBSYSTEM...';
+            btn.style.pointerEvents = 'none';
             
-            // Web Audio API needs interaction to unlock. The click handles it.
+            // Trigger massive shockwave from center
+            triggerShockwave(Math.floor((columns * rows) / 2));
+
+            anime({
+                targets: '#btn-init, #title',
+                opacity: 0,
+                translateY: -20,
+                duration: 600,
+                easing: 'easeInQuad'
+            });
+            
             setTimeout(() => {
+                status.style.color = '#fff';
                 status.textContent = 'BIOMETRIC LOCK ENGAGED';
+                
                 speak("Welcome Sir. Sovereign enclave locked. Awaiting cryptographic verification.", () => {
                     document.getElementById('gatekeeper').style.opacity = '0';
                     setTimeout(() => {
                         document.getElementById('gatekeeper').style.display = 'none';
                         const modal = document.getElementById('vault-modal');
                         modal.style.display = 'flex';
+                        anime({ targets: '.modal-box', scale: [0.9, 1], opacity: [0, 1], duration: 500, easing: 'easeOutExpo' });
                         setTimeout(() => modal.style.opacity = '1', 50);
                         document.getElementById('vault-pass').focus();
                     }, 500);
                 });
-            }, 200);
+            }, 300);
         }
 
-        // Initialize voices early so they load before click
-        window.speechSynthesis.getVoices();
-        
-        // Cryptography for Vault
+        // --- CRYPTOGRAPHY ---
         const ENCLAVE_CONFIG = { salt: "UkVYT05fRU5DTEFWRV8yNg==", iv: "U09WRVJFSUdOXzI2", seeds: ["KSd9/Hq19nm+yIPQTT6sRbgAfUJQEzdwRrMlnKYKIgQ=", "sk9pbxmq5deFYR29llvNJlpLnKgm6Btjdd3DpddA22E="] };
 
         function base32ToHex(base32) {
@@ -303,7 +371,8 @@
                 document.getElementById('vault-modal').style.display = 'none';
                 document.getElementById('decrypted-workspace').style.display = 'block';
                 
-                // Voice confirmation
+                anime({ targets: '#decrypted-workspace', opacity: [0, 1], duration: 800, easing: 'easeOutQuad' });
+                
                 speak("Identity verified. Welcome back, Sir. Full root access granted.");
 
                 const saved = localStorage.getItem("unknxwc_stash");
