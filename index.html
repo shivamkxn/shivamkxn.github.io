@@ -660,6 +660,12 @@
         let hLoadedCount = 0;
         let mLoadedCount = 0;
 
+        // Instant anchor frames preloader
+        ['frames/h_0001.jpg', 'frames/m_0001.jpg'].forEach(src => {
+            const p = new Image();
+            p.src = src;
+        });
+
         // Preload Stage 1: Obsidian Hypercube (Top)
         for (let i = 1; i <= 96; i++) {
             const img = new Image();
@@ -720,20 +726,24 @@
                 // Stage 1: Obsidian Hypercube (0.0s to 4.02s)
                 const norm = p / 0.46;
                 const idx = Math.min(95, Math.floor(norm * 95));
-                const frame = getLoadedFrame(hFrames, idx);
+                const frame = getLoadedFrame(hFrames, idx) || getLoadedFrame(mFrames, 0);
                 if (frame) drawScaled(frame);
             } else if (p >= 0.46 && p <= 0.54) {
                 // Seamless Crossfade Dissolve (Hypercube 96 -> Monolith 1)
                 const transProgress = (p - 0.46) / 0.08;
                 const fH = getLoadedFrame(hFrames, 95);
-                const fM = getLoadedFrame(mFrames, 0);
-                if (fH) drawScaled(fH, 1.0 - transProgress);
-                if (fM) drawScaled(fM, transProgress);
+                const fM = getLoadedFrame(mFrames, 0) || fH;
+                if (fH && fM && fH !== fM) {
+                    drawScaled(fH, 1.0 - transProgress);
+                    drawScaled(fM, transProgress);
+                } else if (fM) {
+                    drawScaled(fM);
+                }
             } else {
                 // Stage 2: Crystalline Monolith (0.0s to 5.09s)
                 const norm = (p - 0.54) / 0.46;
                 const idx = Math.min(95, Math.floor(norm * 95));
-                const frame = getLoadedFrame(mFrames, idx);
+                const frame = getLoadedFrame(mFrames, idx) || getLoadedFrame(hFrames, 95);
                 if (frame) drawScaled(frame);
             }
         }
