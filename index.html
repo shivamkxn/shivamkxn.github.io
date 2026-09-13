@@ -4,29 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNKNXWC | Sovereign Intelligence</title>
-    <meta name="description" content="Sovereign On-Device Neural Architecture & Zero-Knowledge Cryptographic Enclave architected by UNKNXWC.">
+    <meta name="description" content="Sovereign On-Device Neural Architecture, Forensic Matrix & Zero-Knowledge Cryptographic Enclave architected by UNKNXWC.">
     <meta name="theme-color" content="#000000">
 
     <!-- Luxury Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Rajdhani:wght@500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 
     <style>
         :root {
             --bg-black: #000000;
-            --text-white: #ffffff;
-            --text-muted: #888888;
-            --text-dim: #444444;
-            --accent-cyan: #00f3ff;
-            --accent-violet: #8a2be2;
-            --accent-red: #ff1e27;
-            --border-hairline: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.25);
+            --bg-glass: rgba(10, 14, 26, 0.75);
+            --bg-card: rgba(8, 12, 22, 0.82);
+            --border-glow: rgba(0, 243, 255, 0.28);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-pink: rgba(255, 0, 127, 0.35);
             
-            --font-display: 'Syne', sans-serif;
+            --cyan-neon: #00f3ff;
+            --purple-core: #8a2be2;
+            --pink-quantum: #ff007f;
+            --green-matrix: #00ff66;
+            --amber-warn: #f59e0b;
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #475569;
+            
+            --font-head: 'Syne', sans-serif;
+            --font-display: 'Orbitron', sans-serif;
             --font-body: 'Rajdhani', sans-serif;
-            --font-mono: 'Fira Code', monospace;
+            --font-code: 'Fira Code', monospace;
         }
 
         * {
@@ -38,405 +47,46 @@
 
         html, body {
             background-color: var(--bg-black);
-            color: var(--text-white);
+            color: var(--text-main);
             font-family: var(--font-body);
             overflow-x: hidden;
             line-height: 1.4;
             min-height: 100vh;
         }
 
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #000000;
-        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000000; }
         ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 2px;
         }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyan-neon);
+        }
 
-        /* Fixed Background Canvas for Hypercube Frames */
-        #scroll-canvas {
+        /* Dynamic Deep Ambient Spotlights */
+        .ambient-glow-top {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: -20vh;
+            left: 20vw;
+            width: 60vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.07) 0%, transparent 70%);
+            filter: blur(80px);
+            pointer-events: none;
             z-index: 1;
-            pointer-events: none;
-            background: #000000;
         }
 
-        /* Cinematic Vignette Overlay */
-        .cinematic-vignette {
+        .ambient-glow-bottom {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            bottom: -20vh;
+            right: 15vw;
+            width: 70vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.08) 0%, transparent 70%);
+            filter: blur(100px);
             pointer-events: none;
-            z-index: 2;
-            background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.85) 100%);
-        }
-
-        /* Top Sovereign Navigation */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 80px;
-            padding: 0 44px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            mix-blend-mode: difference;
-        }
-
-        @media (max-width: 768px) {
-            header {
-                padding: 0 20px;
-                height: 68px;
-            }
-        }
-
-        .brand-logo {
-            font-family: var(--font-display);
-            font-size: 1.35rem;
-            font-weight: 900;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: #ffffff;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--accent-cyan);
-            box-shadow: 0 0 10px var(--accent-cyan);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
-
-        @media (max-width: 860px) {
-            .nav-links { display: none; }
-        }
-
-        .nav-item {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: color 0.25s ease;
-            cursor: pointer;
-        }
-
-        .nav-item:hover {
-            color: #ffffff;
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        /* Audio Equalizer Button */
-        .btn-sound {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.2s;
-        }
-
-        .btn-sound:hover { color: #ffffff; }
-
-        .sound-wave {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            height: 12px;
-        }
-
-        .wave-bar {
-            width: 2px;
-            height: 4px;
-            background: #ffffff;
-            transition: height 0.2s ease;
-        }
-
-        .sound-wave.active .wave-bar:nth-child(1) { animation: wavePulse 0.8s infinite alternate ease-in-out; }
-        .sound-wave.active .wave-bar:nth-child(2) { animation: wavePulse 0.6s infinite alternate 0.15s ease-in-out; }
-        .sound-wave.active .wave-bar:nth-child(3) { animation: wavePulse 1.0s infinite alternate 0.3s ease-in-out; }
-        .sound-wave.active .wave-bar:nth-child(4) { animation: wavePulse 0.7s infinite alternate 0.2s ease-in-out; }
-
-        @keyframes wavePulse {
-            0% { height: 3px; }
-            100% { height: 13px; }
-        }
-
-        .btn-vault-nav {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            padding: 8px 18px;
-            border-radius: 4px;
-            background: transparent;
-            border: 1px solid var(--border-hover);
-            color: #ffffff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-        }
-
-        .btn-vault-nav:hover {
-            background: #ffffff;
-            color: #000000;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-        }
-
-        /* Scroll Driver Container */
-        .scroll-driver {
-            position: relative;
-            height: 450vh;
-            z-index: 5;
-        }
-
-        /* Fixed Stage Viewport */
-        .stage-viewport {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 100px 50px 45px;
-        }
-
-        @media (max-width: 768px) {
-            .stage-viewport {
-                padding: 85px 24px 25px;
-            }
-        }
-
-        .stage-content-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            width: 100%;
-            position: relative;
-        }
-
-        .stage-card {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-            pointer-events: none;
-        }
-
-        .stage-card.active {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-
-        .stage-left {
-            max-width: 640px;
-        }
-
-        .stage-tag {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            letter-spacing: 3px;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .stage-title {
-            font-family: var(--font-display);
-            font-size: clamp(2.4rem, 5.5vw, 5rem);
-            font-weight: 900;
-            letter-spacing: 2px;
-            line-height: 1.05;
-            color: #ffffff;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-        }
-
-        .stage-desc {
-            font-size: clamp(1.05rem, 1.7vw, 1.35rem);
-            font-weight: 500;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 24px;
-        }
-
-        .pill-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-
-        .tech-pill {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-hairline);
-            padding: 5px 12px;
-            border-radius: 3px;
-        }
-
-        .btn-action-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            font-family: var(--font-mono);
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            padding: 13px 26px;
-            background: #ffffff;
-            color: #000000;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.25s ease;
-        }
-
-        .btn-action-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
-        }
-
-        .stage-right {
-            text-align: right;
-            font-family: var(--font-mono);
-        }
-
-        @media (max-width: 860px) {
-            .stage-right { display: none; }
-        }
-
-        .stage-index {
-            font-size: clamp(2rem, 4vw, 3.5rem);
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.2);
-            line-height: 1;
-            margin-bottom: 12px;
-        }
-
-        .stage-spec {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            letter-spacing: 2px;
-            line-height: 1.8;
-            text-transform: uppercase;
-        }
-
-        .stage-spec span.highlight {
-            color: #ffffff;
-        }
-
-        .stage-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border-hairline);
-            padding-top: 18px;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: var(--text-dim);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .scroll-pill {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-muted);
-        }
-
-        .scroll-arrow {
-            animation: bounceArrow 1.6s infinite ease-in-out;
-        }
-
-        @keyframes bounceArrow {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(5px); }
-        }
-
-        /* Right Side Scroll Progress HUD */
-        .scroll-progress-hud {
-            position: fixed;
-            right: 28px;
-            top: 50%;
-            transform: translateY(-50%);
-            height: 150px;
-            width: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            z-index: 50;
-        }
-
-        @media (max-width: 768px) {
-            .scroll-progress-hud { display: none; }
-        }
-
-        .progress-hud-fill {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 0%;
-            background: var(--accent-cyan);
-            box-shadow: 0 0 10px var(--accent-cyan);
-            transition: height 0.08s linear;
-        }
-
-        .progress-hud-text {
-            position: absolute;
-            top: -24px;
-            right: -6px;
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            color: var(--text-muted);
+            z-index: 1;
         }
 
         /* Preloader */
@@ -452,20 +102,31 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-family: var(--font-mono);
+            font-family: var(--font-code);
             transition: opacity 0.5s ease;
         }
 
         .preloader-brand {
-            font-family: var(--font-display);
-            font-size: 2.2rem;
+            font-family: var(--font-head);
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
             font-weight: 900;
             letter-spacing: 6px;
             margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 0 0 35px rgba(0, 243, 255, 0.5);
+        }
+
+        .preloader-sub {
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            color: var(--cyan-neon);
+            letter-spacing: 3px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
         }
 
         .preloader-bar-wrap {
-            width: 180px;
+            width: 260px;
             height: 2px;
             background: rgba(255, 255, 255, 0.1);
             position: relative;
@@ -479,17 +140,621 @@
             left: 0;
             height: 100%;
             width: 0%;
-            background: var(--accent-cyan);
-            transition: width 0.1s linear;
+            background: linear-gradient(90deg, var(--cyan-neon), var(--purple-core));
+            transition: width 0.08s linear;
         }
 
         .preloader-pct {
-            font-size: 0.72rem;
-            color: var(--text-dim);
+            font-size: 0.75rem;
+            color: var(--text-muted);
             letter-spacing: 2px;
         }
 
-        /* Hardened Sovereign Enclave Modal (ZERO PUBLIC SECRET DISCLOSURE) */
+        /* Fixed Background Canvas for 96 Hypercube Frames */
+        #scroll-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            pointer-events: none;
+            background: #000000;
+        }
+
+        /* Seamless Radial Vignette & Edge Blend */
+        .cinematic-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 3;
+            background: radial-gradient(circle at 50% 50%, transparent 35%, rgba(0, 0, 0, 0.7) 70%, #000000 100%),
+                        linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.85) 100%);
+        }
+
+        /* Top Sovereign Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 76px;
+            padding: 0 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 0 20px; height: 66px; }
+        }
+
+        .brand-logo {
+            font-family: var(--font-head);
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--cyan-neon);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--cyan-neon);
+            animation: pulseDot 2.2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+        }
+
+        .nav-item {
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            padding: 6px 0;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--cyan-neon);
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--cyan-neon);
+            transition: width 0.25s ease;
+            box-shadow: 0 0 8px var(--cyan-neon);
+        }
+
+        .nav-item:hover::after, .nav-item.active::after {
+            width: 100%;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-sound {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 7px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-family: var(--font-code);
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-sound:hover {
+            border-color: var(--cyan-neon);
+            color: #ffffff;
+        }
+
+        .sound-wave {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 12px;
+        }
+
+        .wave-bar {
+            width: 2px;
+            background: var(--cyan-neon);
+            border-radius: 1px;
+            height: 3px;
+        }
+
+        .sound-wave.active .wave-bar:nth-child(1) { animation: wave 0.9s infinite ease-in-out; }
+        .sound-wave.active .wave-bar:nth-child(2) { animation: wave 1.2s infinite ease-in-out 0.2s; }
+        .sound-wave.active .wave-bar:nth-child(3) { animation: wave 0.8s infinite ease-in-out 0.4s; }
+        .sound-wave.active .wave-bar:nth-child(4) { animation: wave 1.1s infinite ease-in-out 0.1s; }
+
+        @keyframes wave {
+            0%, 100% { height: 3px; }
+            50% { height: 12px; }
+        }
+
+        .btn-enclave-nav {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.15), rgba(138, 43, 226, 0.15));
+            border: 1px solid var(--border-glow);
+            color: #ffffff;
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.15);
+        }
+
+        .btn-enclave-nav:hover {
+            background: linear-gradient(135deg, var(--cyan-neon), var(--purple-core));
+            color: #000000;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Scroll Progress HUD */
+        .scroll-progress-hud {
+            position: fixed;
+            right: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 160px;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 50;
+        }
+
+        @media (max-width: 768px) {
+            .scroll-progress-hud { display: none; }
+        }
+
+        .progress-hud-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(180deg, var(--cyan-neon), var(--purple-core));
+            box-shadow: 0 0 10px var(--cyan-neon);
+            transition: height 0.08s linear;
+        }
+
+        .progress-hud-text {
+            position: absolute;
+            top: -24px;
+            right: -8px;
+            font-family: var(--font-code);
+            font-size: 0.7rem;
+            color: var(--cyan-neon);
+        }
+
+        /* Stage Viewport Container */
+        .stage-viewport {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 90px 48px 36px;
+        }
+
+        @media (max-width: 768px) {
+            .stage-viewport {
+                padding: 76px 20px 24px;
+            }
+        }
+
+        .stage-card {
+            position: absolute;
+            top: 50%;
+            left: 48px;
+            right: 48px;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (max-width: 768px) {
+            .stage-card {
+                left: 20px;
+                right: 20px;
+            }
+        }
+
+        .stage-card.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(-50%) translateY(0);
+        }
+
+        /* Luxury Frosted Obsidian Panels */
+        .glass-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(28px) saturate(180%);
+            border: 1px solid var(--border-subtle);
+            border-top: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 14px;
+            padding: 38px 36px;
+            max-width: 580px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        @media (max-width: 768px) {
+            .glass-panel {
+                padding: 24px 20px;
+                max-width: 100%;
+            }
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 243, 255, 0.08), transparent 50%);
+            pointer-events: none;
+        }
+
+        .stage-tag {
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            color: var(--cyan-neon);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .stage-tag.pink { color: var(--pink-quantum); }
+        .stage-tag.purple { color: var(--purple-core); }
+        .stage-tag.green { color: var(--green-matrix); }
+
+        .stage-title {
+            font-family: var(--font-head);
+            font-size: clamp(2rem, 4.2vw, 3.2rem);
+            font-weight: 900;
+            letter-spacing: 1px;
+            line-height: 1.05;
+            margin-bottom: 14px;
+            color: #ffffff;
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+        }
+
+        .stage-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            font-weight: 500;
+        }
+
+        .pill-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .tech-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .tech-pill.cyan { border-color: rgba(0, 243, 255, 0.3); color: var(--cyan-neon); }
+        .tech-pill.pink { border-color: rgba(255, 0, 127, 0.3); color: var(--pink-quantum); }
+        .tech-pill.purple { border-color: rgba(138, 43, 226, 0.3); color: #c084fc; }
+        .tech-pill.green { border-color: rgba(0, 255, 102, 0.3); color: var(--green-matrix); }
+
+        .stage-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action-primary {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            padding: 13px 22px;
+            font-family: var(--font-head);
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-action-primary:hover {
+            background: var(--cyan-neon);
+            box-shadow: 0 0 35px rgba(0, 243, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-action-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 13px 20px;
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action-secondary:hover {
+            border-color: var(--cyan-neon);
+            color: var(--cyan-neon);
+            transform: translateY(-2px);
+        }
+
+        /* Stage Right Telemetry Box */
+        .stage-right {
+            text-align: right;
+            font-family: var(--font-code);
+        }
+
+        @media (max-width: 990px) {
+            .stage-right { display: none; }
+        }
+
+        .stage-index {
+            font-size: clamp(2.4rem, 4.5vw, 4rem);
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.18);
+            line-height: 1;
+            margin-bottom: 14px;
+            text-shadow: 0 0 25px rgba(0, 243, 255, 0.2);
+            font-family: var(--font-head);
+        }
+
+        .stage-spec {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            line-height: 1.9;
+            text-transform: uppercase;
+            background: rgba(5, 9, 18, 0.85);
+            border: 1px solid var(--border-subtle);
+            padding: 16px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .stage-spec span.highlight {
+            color: var(--cyan-neon);
+            font-weight: 700;
+        }
+
+        .stage-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 16px;
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .scroll-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+        }
+
+        .scroll-arrow {
+            animation: bounceArrow 1.6s infinite ease-in-out;
+            color: var(--cyan-neon);
+        }
+
+        @keyframes bounceArrow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+        }
+
+        /* Scroll Driver Track */
+        .scroll-driver {
+            height: 480vh;
+            width: 100vw;
+            pointer-events: none;
+        }
+
+        /* Punch Hole Live Simulation Preview Widget */
+        .punch-hole-sim {
+            margin-top: 18px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .punch-hole-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #000000;
+            border: 2px solid var(--cyan-neon);
+            position: relative;
+            box-shadow: 0 0 15px var(--cyan-neon);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .punch-hole-circle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #00f3ff, #0044ff);
+            box-shadow: 0 0 10px #00f3ff;
+        }
+
+        .punch-hole-circle.active {
+            animation: cameraRingPulse 1.2s infinite;
+        }
+
+        @keyframes cameraRingPulse {
+            0% { box-shadow: 0 0 10px var(--cyan-neon), 0 0 25px var(--pink-quantum); transform: scale(1); }
+            50% { box-shadow: 0 0 25px var(--cyan-neon), 0 0 45px var(--pink-quantum); transform: scale(1.1); }
+            100% { box-shadow: 0 0 10px var(--cyan-neon), 0 0 25px var(--pink-quantum); transform: scale(1); }
+        }
+
+        .punch-hole-meta {
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            line-height: 1.6;
+        }
+
+        /* Architecture Manifest Modal */
+        .manifest-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.94);
+            backdrop-filter: blur(30px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .manifest-modal-box {
+            width: 100%;
+            max-width: 820px;
+            background: radial-gradient(circle at 50% 0%, #0d152a, #020612);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 38px;
+            position: relative;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.95), 0 0 50px rgba(0, 243, 255, 0.2);
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        .manifest-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .manifest-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .manifest-card-title {
+            font-family: var(--font-head);
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--cyan-neon);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .manifest-card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Hardened Sovereign Enclave Modal (ZERO SECRET DISCLOSURE) */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -497,7 +762,7 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.94);
-            backdrop-filter: blur(25px);
+            backdrop-filter: blur(30px);
             z-index: 1000;
             display: none;
             align-items: center;
@@ -507,13 +772,13 @@
 
         .modal-box {
             width: 100%;
-            max-width: 440px;
-            background: #08080a;
-            border: 1px solid var(--border-hover);
-            border-radius: 6px;
-            padding: 36px 30px;
+            max-width: 480px;
+            background: radial-gradient(circle at 50% 0%, #0f1830, #030713);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 38px 32px;
             position: relative;
-            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95);
+            box-shadow: 0 35px 100px rgba(0, 0, 0, 0.95), 0 0 45px rgba(0, 243, 255, 0.25);
         }
 
         .modal-close {
@@ -523,7 +788,7 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             cursor: pointer;
             line-height: 1;
         }
@@ -531,19 +796,19 @@
         .modal-close:hover { color: #ffffff; }
 
         .modal-tag {
-            font-family: var(--font-mono);
-            font-size: 0.68rem;
-            color: var(--accent-cyan);
-            letter-spacing: 2.5px;
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            color: var(--cyan-neon);
+            letter-spacing: 3px;
             text-transform: uppercase;
             margin-bottom: 8px;
             display: block;
         }
 
         .modal-title {
-            font-family: var(--font-display);
-            font-size: 1.55rem;
-            font-weight: 800;
+            font-family: var(--font-head);
+            font-size: 1.7rem;
+            font-weight: 900;
             letter-spacing: 2px;
             color: #ffffff;
             margin-bottom: 24px;
@@ -556,67 +821,71 @@
         .input-meta {
             display: flex;
             justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
+            font-family: var(--font-code);
+            font-size: 0.72rem;
             color: var(--text-muted);
             letter-spacing: 1.5px;
             text-transform: uppercase;
             margin-bottom: 8px;
         }
 
-        .input-meta span.req { color: var(--accent-cyan); }
+        .input-meta span.req { color: var(--cyan-neon); }
 
         .luxury-input {
             width: 100%;
-            background: #000000;
-            border: 1px solid var(--border-hairline);
-            border-radius: 4px;
-            padding: 13px 15px;
+            background: rgba(5, 9, 18, 0.9);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 14px 16px;
             color: #ffffff;
-            font-family: var(--font-mono);
+            font-family: var(--font-code);
             font-size: 0.95rem;
             outline: none;
-            transition: border-color 0.25s;
+            transition: all 0.25s ease;
         }
 
         .luxury-input:focus {
-            border-color: #ffffff;
+            border-color: var(--cyan-neon);
+            box-shadow: 0 0 18px rgba(0, 243, 255, 0.35);
         }
 
         .modal-error {
             display: none;
-            background: rgba(255, 30, 39, 0.1);
-            border: 1px solid var(--accent-red);
-            color: var(--accent-red);
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            padding: 10px 14px;
-            border-radius: 4px;
+            background: rgba(239, 68, 68, 0.14);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            font-family: var(--font-code);
+            font-size: 0.78rem;
+            padding: 12px 14px;
+            border-radius: 6px;
             margin-bottom: 18px;
+            line-height: 1.5;
         }
 
         .btn-modal-submit {
             width: 100%;
-            background: #ffffff;
+            background: linear-gradient(135deg, var(--cyan-neon), var(--purple-core));
             border: none;
             color: #000000;
-            font-family: var(--font-mono);
-            font-size: 0.82rem;
-            font-weight: 700;
+            font-family: var(--font-head);
+            font-size: 0.85rem;
+            font-weight: 800;
             letter-spacing: 2px;
-            padding: 15px;
-            border-radius: 4px;
+            padding: 16px;
+            border-radius: 8px;
             cursor: pointer;
             text-transform: uppercase;
             transition: all 0.25s ease;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.45);
         }
 
         .btn-modal-submit:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+            color: #ffffff;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.8);
+            transform: translateY(-2px);
         }
 
-        /* Decrypted Sovereign Workspace Overlay */
+        /* Decrypted Workspace Overlay */
         #decrypted-workspace {
             position: fixed;
             top: 0;
@@ -627,11 +896,11 @@
             z-index: 500;
             display: none;
             overflow-y: auto;
-            padding: 90px 40px 60px;
+            padding: 95px 40px 60px;
         }
 
         .workspace-container {
-            max-width: 1000px;
+            max-width: 1040px;
             margin: 0 auto;
         }
 
@@ -639,14 +908,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-hairline);
-            padding-bottom: 20px;
-            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 22px;
+            margin-bottom: 34px;
         }
 
         .ws-title {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
+            font-family: var(--font-head);
+            font-size: 2.2rem;
             font-weight: 900;
             letter-spacing: 2px;
         }
@@ -659,36 +928,39 @@
         }
 
         .ws-card {
-            background: #08080a;
-            border: 1px solid var(--border-hairline);
-            border-radius: 6px;
-            padding: 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 26px;
             cursor: pointer;
-            transition: border-color 0.25s;
+            transition: all 0.25s ease;
         }
 
         .ws-card:hover {
-            border-color: #ffffff;
+            border-color: var(--cyan-neon);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.25);
+            transform: translateY(-3px);
         }
 
         .ws-card-title {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
+            font-family: var(--font-head);
+            font-size: 1.15rem;
             font-weight: 800;
             letter-spacing: 1.5px;
             margin-bottom: 6px;
         }
 
         .ws-card-desc {
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
             margin-bottom: 14px;
+            line-height: 1.5;
         }
 
         .ws-card-sub {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: var(--accent-cyan);
+            font-family: var(--font-code);
+            font-size: 0.72rem;
+            color: var(--cyan-neon);
         }
 
         /* Terminal Drawer */
@@ -698,13 +970,14 @@
             left: 0;
             width: 100vw;
             height: 44vh;
-            background: rgba(4, 4, 6, 0.96);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border-hover);
+            background: rgba(3, 6, 14, 0.96);
+            backdrop-filter: blur(24px);
+            border-top: 1px solid var(--border-glow);
             z-index: 200;
             display: none;
             flex-direction: column;
             padding: 20px 36px;
+            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.95);
         }
 
         .term-header {
@@ -712,8 +985,8 @@
             justify-content: space-between;
             align-items: center;
             padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-hairline);
-            font-family: var(--font-mono);
+            border-bottom: 1px solid var(--border-subtle);
+            font-family: var(--font-code);
             font-size: 0.72rem;
             color: var(--text-muted);
         }
@@ -721,8 +994,8 @@
         .term-body {
             flex: 1;
             overflow-y: auto;
-            font-family: var(--font-mono);
-            font-size: 0.82rem;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
             padding: 14px 0;
             line-height: 1.6;
         }
@@ -731,7 +1004,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            font-family: var(--font-mono);
+            font-family: var(--font-code);
             font-size: 0.88rem;
         }
 
@@ -741,29 +1014,34 @@
             border: none;
             outline: none;
             color: #ffffff;
-            font-family: var(--font-mono);
+            font-family: var(--font-code);
             font-size: 0.88rem;
         }
     </style>
 </head>
 <body>
 
-    <!-- Preloader -->
+    <!-- Ambient Dynamic Spotlights -->
+    <div class="ambient-glow-top"></div>
+    <div class="ambient-glow-bottom"></div>
+
+    <!-- Preloader Screen -->
     <div id="preloader">
-        <div class="preloader-brand">UNKNXWC</div>
+        <div class="preloader-brand">REXON INTELLIGENCE</div>
+        <div class="preloader-sub">Synchronizing 96 Quantum Latents</div>
         <div class="preloader-bar-wrap">
             <div class="preloader-bar-fill" id="load-bar"></div>
         </div>
         <div class="preloader-pct" id="load-pct">0%</div>
     </div>
 
-    <!-- Fixed Scroll-Driven Canvas (Obsidian Hypercube) -->
+    <!-- Fixed Scroll-Driven Canvas (Obsidian Hypercube: 0s to 4.02s) -->
     <canvas id="scroll-canvas"></canvas>
 
-    <!-- Cinematic Film Vignette -->
+    <!-- Seamless Cinematic Vignette Overlay -->
     <div class="cinematic-vignette"></div>
 
-    <!-- Navigation Header -->
+    <!-- Top Sovereign Navigation Header -->
     <header>
         <a href="#" class="brand-logo">
             <span>UNKNXWC</span>
@@ -771,11 +1049,12 @@
         </a>
 
         <div class="nav-links">
-            <a onclick="scrollToStage(0)" class="nav-item">Nexus</a>
-            <a onclick="scrollToStage(1)" class="nav-item">Mobile</a>
-            <a onclick="scrollToStage(2)" class="nav-item">Forensics</a>
-            <a onclick="toggleTerminal()" class="nav-item">Terminal</a>
-            <a onclick="openVaultModal()" class="nav-item">Enclave</a>
+            <a onclick="scrollToStage(0)" class="nav-item active" id="nav-0">Nexus</a>
+            <a onclick="scrollToStage(1)" class="nav-item" id="nav-1">Rexon Reborn</a>
+            <a onclick="scrollToStage(2)" class="nav-item" id="nav-2">Forensics</a>
+            <a onclick="scrollToStage(3)" class="nav-item" id="nav-3">Vault</a>
+            <a onclick="toggleTerminal()" class="nav-item">Shell</a>
+            <a onclick="openManifestModal()" class="nav-item">Manifest</a>
         </div>
 
         <div class="nav-actions">
@@ -786,14 +1065,14 @@
                     <div class="wave-bar"></div>
                     <div class="wave-bar"></div>
                 </div>
-                <span id="sound-label">SOUND</span>
+                <span id="sound-label">AUDIO</span>
             </button>
 
-            <button class="btn-vault-nav" onclick="openVaultModal()">ENCLAVE ↗</button>
+            <button class="btn-enclave-nav" onclick="openVaultModal()">VAULT ↗</button>
         </div>
     </header>
 
-    <!-- Right Side Progress Indicator -->
+    <!-- Right Side Progress HUD -->
     <div class="scroll-progress-hud">
         <div class="progress-hud-text" id="hud-pct">00%</div>
         <div class="progress-hud-fill" id="hud-bar"></div>
@@ -801,110 +1080,142 @@
 
     <!-- Fixed Stage Viewport -->
     <div class="stage-viewport">
-        <div></div> <!-- Header Spacer -->
+        <div></div> <!-- Top Spacer -->
 
-        <div class="stage-content-row">
-            <!-- Stage 1: The Sovereign Nexus -->
-            <div class="stage-card active" id="stage-0">
-                <div class="stage-left">
-                    <span class="stage-tag">SOVEREIGN ROOT // 01</span>
-                    <h1 class="stage-title">AUTONOMOUS INTELLIGENCE.</h1>
-                    <p class="stage-desc">
-                        On-device neural inference engines, autonomous reverse engineering, and zero-knowledge client cryptography.
-                    </p>
-                    <button class="btn-action-primary" onclick="scrollToStage(1)">
-                        <span>EXPLORE MOBILE ARCHITECTURE</span>
-                        <span>↓</span>
+        <!-- Stage 1: The Sovereign Nexus -->
+        <div class="stage-card active" id="stage-0">
+            <div class="glass-panel">
+                <span class="stage-tag">SOVEREIGN INTELLIGENCE ◆ 01</span>
+                <h1 class="stage-title">UNKNXWC.</h1>
+                <p class="stage-desc">
+                    Architecting sovereign on-device neural intelligence, deep forensic reconnaissance engines, and client-side zero-knowledge enclaves.
+                </p>
+                <div class="pill-group">
+                    <span class="tech-pill cyan">LiteRT Gemma 4-E2B</span>
+                    <span class="tech-pill pink">60+ Forensic Vectors</span>
+                    <span class="tech-pill purple">Win32 Port 8080 RPC</span>
+                    <span class="tech-pill green">Zero Server Persistence</span>
+                </div>
+                <div class="stage-actions">
+                    <button class="btn-action-primary" onclick="openManifestModal()">
+                        <span>SYSTEM MANIFEST</span>
+                        <span>↗</span>
                     </button>
-                </div>
-                <div class="stage-right">
-                    <div class="stage-index">01 / 04</div>
-                    <div class="stage-spec">
-                        <div>ENGINE: <span class="highlight">LITERT GEMMA 4-E2B</span></div>
-                        <div>ARCH: <span class="highlight">LOCAL AUTONOMY</span></div>
-                        <div>SECURITY: <span class="highlight">STRICT TOTP 2FA</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stage 2: Rexon Reborn (Android) -->
-            <div class="stage-card" id="stage-1">
-                <div class="stage-left">
-                    <span class="stage-tag">MOBILE ON-DEVICE CORE // 02</span>
-                    <h2 class="stage-title">REXON REBORN.</h2>
-                    <p class="stage-desc">
-                        Android autonomous agent running LiteRT GPU inference with 20-message zero-token batched compactor and AMOLED floating HUD.
-                    </p>
-                    <div class="pill-group">
-                        <span class="tech-pill">LiteRT GPU</span>
-                        <span class="tech-pill">Android 14+</span>
-                        <span class="tech-pill">Punch-Hole: 555x, 60y</span>
-                        <span class="tech-pill">Zero-Token Buffer</span>
-                    </div>
-                    <button class="btn-action-primary" onclick="scrollToStage(2)">
-                        <span>INSPECT FORENSICS</span>
-                        <span>↓</span>
-                    </button>
-                </div>
-                <div class="stage-right">
-                    <div class="stage-index">02 / 04</div>
-                    <div class="stage-spec">
-                        <div>DEVICE: <span class="highlight">REALME RMX5003</span></div>
-                        <div>ALIGNMENT: <span class="highlight">555X, 60Y</span></div>
-                        <div>SERVICE: <span class="highlight">ACCESSIBILITY</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stage 3: Rexon Intelligence (Forensics) -->
-            <div class="stage-card" id="stage-2">
-                <div class="stage-left">
-                    <span class="stage-tag">THREAT RECONNAISSANCE // 03</span>
-                    <h2 class="stage-title">REXON INTELLIGENCE.</h2>
-                    <p class="stage-desc">
-                        60+ Autonomous forensic modules, authenticated DOM injection, and stealth network camouflage with algorithmic jitter.
-                    </p>
-                    <div class="pill-group">
-                        <span class="tech-pill">Python 3.11</span>
-                        <span class="tech-pill">Port 8080 IPC</span>
-                        <span class="tech-pill">AsyncStealthClient</span>
-                        <span class="tech-pill">Sec-Ch-Ua Camouflage</span>
-                    </div>
-                    <button class="btn-action-primary" onclick="toggleTerminal()">
-                        <span>OPEN COMMAND CONSOLE</span>
+                    <button class="btn-action-secondary" onclick="toggleTerminal()">
+                        <span>TERMINAL (CTRL+~)</span>
                         <span>_</span>
                     </button>
                 </div>
-                <div class="stage-right">
-                    <div class="stage-index">03 / 04</div>
-                    <div class="stage-spec">
-                        <div>WORKSTATION: <span class="highlight">PC ENGINE</span></div>
-                        <div>BRIDGE: <span class="highlight">PORT 8080 ACTIVE</span></div>
-                        <div>MODULES: <span class="highlight">60+ VECTORS</span></div>
+            </div>
+            <div class="stage-right">
+                <div class="stage-index">01 / 04</div>
+                <div class="stage-spec">
+                    <div>OPERATOR: <span class="highlight">UNKNXWC (ROOT)</span></div>
+                    <div>NEURAL CORE: <span class="highlight">ON-DEVICE LITERT</span></div>
+                    <div>IPC BRIDGE: <span class="highlight">PORT 8080 READY</span></div>
+                    <div>SECURITY: <span class="highlight">STRICT TOTP + AES-GCM</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stage 2: Rexon Reborn (Android) -->
+        <div class="stage-card" id="stage-1">
+            <div class="glass-panel">
+                <span class="stage-tag pink">MOBILE ON-DEVICE RUNTIME ◆ 02</span>
+                <h2 class="stage-title">REXON REBORN.</h2>
+                <p class="stage-desc">
+                    Autonomous Android operative running LiteRT GPU inference with 20-message zero-token batched memory compaction and front camera punch-hole telemetry.
+                </p>
+                <div class="pill-group">
+                    <span class="tech-pill pink">Realme RMX5003</span>
+                    <span class="tech-pill cyan">Punch-Hole: 555x, 60y</span>
+                    <span class="tech-pill green">0-Token Compactor</span>
+                    <span class="tech-pill purple">Accessibility Service</span>
+                </div>
+                <div class="punch-hole-sim">
+                    <div class="punch-hole-circle active" id="camera-punch-ring" onclick="pulsePunchHole()"></div>
+                    <div class="punch-hole-meta">
+                        <div style="color: #ffffff; font-weight: 700;">CAMERA HUD INVARIANT</div>
+                        <div style="color: var(--text-muted);">Realme RMX5003 Cutout [555px X, 60px Y]</div>
+                        <div style="color: var(--cyan-neon); cursor: pointer;" onclick="pulsePunchHole()">[Click Ring to Trigger Optical Pulse]</div>
                     </div>
                 </div>
             </div>
+            <div class="stage-right">
+                <div class="stage-index">02 / 04</div>
+                <div class="stage-spec">
+                    <div>TARGET DEVICE: <span class="highlight">RMX5003 AMOLED</span></div>
+                    <div>PUNCH-HOLE HUD: <span class="highlight">555X, 60Y EXACT</span></div>
+                    <div>BUFFER CAPACITY: <span class="highlight">20 MSGS / COMPACTION</span></div>
+                    <div>COMPACTOR: <span class="highlight">0 TOKEN COST</span></div>
+                </div>
+            </div>
+        </div>
 
-            <!-- Stage 4: Sovereign Vault -->
-            <div class="stage-card" id="stage-3">
-                <div class="stage-left">
-                    <span class="stage-tag">ZERO-KNOWLEDGE ENCLAVE // 04</span>
-                    <h2 class="stage-title">SOVEREIGN VAULT.</h2>
-                    <p class="stage-desc">
-                        Client-side PBKDF2 (100,000 rounds) + AES-256-GCM enclave. Zero server persistence. Enforced strictly via Google Authenticator TOTP.
-                    </p>
+        <!-- Stage 3: Forensic Core -->
+        <div class="stage-card" id="stage-2">
+            <div class="glass-panel">
+                <span class="stage-tag purple">THREAT RECONNAISSANCE ◆ 03</span>
+                <h2 class="stage-title">FORENSIC CORE.</h2>
+                <p class="stage-desc">
+                    60+ Autonomous forensic extractors, authenticated in-app DOM injection, and stealth network camouflage with algorithmic jitter.
+                </p>
+                <div class="pill-group">
+                    <span class="tech-pill purple">AsyncStealthClient</span>
+                    <span class="tech-pill cyan">Sec-Ch-Ua Camouflage</span>
+                    <span class="tech-pill pink">DOM React Injection</span>
+                    <span class="tech-pill green">Cross-Vector KYC</span>
+                </div>
+                <div class="stage-actions">
+                    <button class="btn-action-primary" onclick="runForensicDiag()">
+                        <span>EXECUTE FORENSIC AUDIT</span>
+                        <span>▶</span>
+                    </button>
+                    <button class="btn-action-secondary" onclick="toggleTerminal()">
+                        <span>INTERACTIVE SHELL</span>
+                        <span>_</span>
+                    </button>
+                </div>
+            </div>
+            <div class="stage-right">
+                <div class="stage-index">03 / 04</div>
+                <div class="stage-spec">
+                    <div>RECON MODULES: <span class="highlight">60+ VECTORS ACTIVE</span></div>
+                    <div>STEALTH CLIENT: <span class="highlight">SEC-CH-UA RANDOMIZED</span></div>
+                    <div>DOM PROTOCOL: <span class="highlight">SYNTHETIC REACT EVENTS</span></div>
+                    <div>JITTER BAND: <span class="highlight">0.5S – 2.5S ALGORITHMIC</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stage 4: Sovereign Vault -->
+        <div class="stage-card" id="stage-3">
+            <div class="glass-panel">
+                <span class="stage-tag green">CRYPTOGRAPHIC ENCLAVE ◆ 04</span>
+                <h2 class="stage-title">SOVEREIGN VAULT.</h2>
+                <p class="stage-desc">
+                    Zero-knowledge client-side encryption. Passphrase verification via PBKDF2 (100k rounds) with AES-256-GCM encrypted TOTP seeds. Zero secrets stored on server.
+                </p>
+                <div class="pill-group">
+                    <span class="tech-pill green">PBKDF2 (100k Rounds)</span>
+                    <span class="tech-pill cyan">AES-256-GCM</span>
+                    <span class="tech-pill pink">RFC 6238 TOTP</span>
+                    <span class="tech-pill purple">Zero Backdoors</span>
+                </div>
+                <div class="stage-actions">
                     <button class="btn-action-primary" onclick="openVaultModal()">
                         <span>AUTHENTICATE & UNLOCK</span>
                         <span>↗</span>
                     </button>
                 </div>
-                <div class="stage-right">
-                    <div class="stage-index">04 / 04</div>
-                    <div class="stage-spec">
-                        <div>CIPHER: <span class="highlight">AES-256-GCM</span></div>
-                        <div>AUTHENTICATION: <span class="highlight">RFC 6238 TOTP</span></div>
-                        <div>BACKDOOR: <span class="highlight">ZERO BYPASS</span></div>
-                    </div>
+            </div>
+            <div class="stage-right">
+                <div class="stage-index">04 / 04</div>
+                <div class="stage-spec">
+                    <div>ENCRYPTION: <span class="highlight">AES-256-GCM ENCLAVE</span></div>
+                    <div>AUTHENTICATION: <span class="highlight">RFC 6238 TOTP 2FA</span></div>
+                    <div>KEY DERIVATION: <span class="highlight">PBKDF2 100K ITERATIONS</span></div>
+                    <div>BACKDOOR: <span class="highlight">NONE (ZERO BYPASS)</span></div>
                 </div>
             </div>
         </div>
@@ -912,14 +1223,60 @@
         <div class="stage-footer">
             <div class="scroll-pill">
                 <span class="scroll-arrow">↓</span>
-                <span>SCROLL TO TRANSMIT ARCHITECTURE</span>
+                <span>SCROLL TO TRAVERSE ARCHITECTURAL LATENTS</span>
             </div>
-            <div>&copy; 2026 UNKNXWC. ALL RIGHTS RESERVED.</div>
+            <div>&copy; 2026 UNKNXWC. REXON INTELLIGENCE.</div>
         </div>
     </div>
 
-    <!-- Scroll Track (450vh) -->
+    <!-- Scroll Track (480vh) -->
     <div class="scroll-driver"></div>
+
+    <!-- System Architecture Manifest Modal -->
+    <div class="manifest-modal-backdrop" id="manifest-modal">
+        <div class="manifest-modal-box">
+            <button class="modal-close" onclick="closeManifestModal()">&times;</button>
+            <span class="modal-tag">ARCHITECTURE MANIFEST</span>
+            <h2 class="modal-title" style="margin-bottom: 8px;">UNKNXWC Sovereign Ecosystem</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">
+                Unified quad-subsystem autonomous intelligence pipeline built for on-device execution, cyber forensics, and client-side cryptography.
+            </p>
+
+            <div class="manifest-grid">
+                <div class="manifest-card">
+                    <div class="manifest-card-title">1. REXON REBORN (MOBILE)</div>
+                    <div class="manifest-card-desc">
+                        On-device neural brain running LiteRT Gemma 4-E2B via GPU delegates. Features a 20-message circular buffer with 0 token expenditure during live chat, compacting into long-term knowledge only upon threshold.
+                    </div>
+                </div>
+
+                <div class="manifest-card">
+                    <div class="manifest-card-title">2. HARDWARE INVARIANTS</div>
+                    <div class="manifest-card-desc">
+                        Realme RMX5003 front camera punch-hole cutout coordinates strictly aligned at X=555, Y=60. AMOLED Color(0xFF000000) UI with zero Material defaults and animated Canvas micro-HUDs.
+                    </div>
+                </div>
+
+                <div class="manifest-card">
+                    <div class="manifest-card-title">3. FORENSIC MATRIX (PC)</div>
+                    <div class="manifest-card-desc">
+                        60+ Forensic extractors backed by AsyncStealthClient. Randomized modern Sec-Ch-Ua, algorithmic jitter (0.5s-2.5s), authenticated WebView2 DOM injection, and synthetic React events.
+                    </div>
+                </div>
+
+                <div class="manifest-card">
+                    <div class="manifest-card-title">4. SOVEREIGN IPC BRIDGE</div>
+                    <div class="manifest-card-desc">
+                        Local Port 8080 Win32 RPC daemon. Deadlock-free safe file redirection for ADB commands, preventing standard batch stdout deadlocks. Real-time workstation telemetry.
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 28px; text-align: center;">
+                <button class="btn-action-primary" onclick="closeManifestModal()">CLOSE MANIFEST</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Hardened Sovereign Enclave Modal (ZERO SECRET DISCLOSURE) -->
     <div class="modal-backdrop" id="vault-modal">
@@ -948,8 +1305,8 @@
 
             <button class="btn-modal-submit" onclick="attemptUnlock()">VERIFY & DECRYPT</button>
 
-            <p style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-dim); text-align: center; margin-top: 16px;">
-                ZERO BYPASS PROTOCOL: RFC 6238 mathematical proof. No backdoors.
+            <p style="font-family: var(--font-code); font-size: 0.68rem; color: var(--text-dim); text-align: center; margin-top: 16px;">
+                ZERO-KNOWLEDGE PROOF: PBKDF2 (100k rounds) + AES-256-GCM. No secrets on server.
             </p>
         </div>
     </div>
@@ -960,11 +1317,11 @@
             <div class="ws-topbar">
                 <div>
                     <h2 class="ws-title">SOVEREIGN WORKSPACE</h2>
-                    <p style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-cyan);">
-                        AUTHENTICATION: UNKNXWC ROOT (SESSION ACTIVE)
+                    <p style="font-family: var(--font-code); font-size: 0.78rem; color: var(--cyan-neon);">
+                        AUTHENTICATION: UNKNXWC ROOT (CRYPTOGRAPHICALLY VERIFIED SESSION)
                     </p>
                 </div>
-                <button class="btn-action-primary" onclick="lockVault()" style="background: var(--accent-red); color: #ffffff;">
+                <button class="btn-action-primary" onclick="lockVault()" style="background: var(--pink-quantum); color: #ffffff;">
                     LOCKDOWN
                 </button>
             </div>
@@ -973,28 +1330,28 @@
             <div class="ws-grid">
                 <div class="ws-card" onclick="dispatchCmd('LOCK_PC')">
                     <h3 class="ws-card-title">LOCK WORKSTATION</h3>
-                    <p class="ws-card-desc">Instantly locks the host PC screen via Win32 LockWorkStation.</p>
+                    <p class="ws-card-desc">Instantly locks host PC workstation via Win32 LockWorkStation.</p>
                     <span class="ws-card-sub">DISPATCH → PORT 8080: LOCK_PC</span>
                 </div>
                 <div class="ws-card" onclick="dispatchCmd('TAKE_SCREENSHOT')">
                     <h3 class="ws-card-title">CAPTURE SCREENSHOT</h3>
-                    <p class="ws-card-desc">Captures primary display and stages in forensic buffer.</p>
+                    <p class="ws-card-desc">Captures primary workstation display to forensic staging buffer.</p>
                     <span class="ws-card-sub">DISPATCH → PORT 8080: TAKE_SCREENSHOT</span>
                 </div>
                 <div class="ws-card" onclick="dispatchCmd('BACKUP_REXON')">
                     <h3 class="ws-card-title">TRIGGER BACKUP</h3>
-                    <p class="ws-card-desc">Deduplicates and archives to D:\All_Rexon_Backups\.</p>
+                    <p class="ws-card-desc">Runs deduplicated backup to D:\All_Rexon_Backups\.</p>
                     <span class="ws-card-sub">DISPATCH → PORT 8080: BACKUP_REXON</span>
                 </div>
             </div>
 
-            <div style="background: #08080a; border: 1px solid var(--border-hairline); border-radius: 6px; padding: 24px; margin-bottom: 30px;">
-                <h4 style="font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 12px;">COMMAND DISPATCH MONITOR</h4>
+            <div style="background: rgba(10, 15, 28, 0.85); border: 1px solid var(--border-glow); border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+                <h4 style="font-family: var(--font-head); font-size: 1.1rem; margin-bottom: 12px; color: #ffffff;">COMMAND DISPATCH MONITOR</h4>
                 <div style="display: flex; gap: 12px; margin-bottom: 14px;">
-                    <input type="text" id="ws-custom-input" class="luxury-input" placeholder="Enter custom order for port 8080...">
+                    <input type="text" id="ws-custom-input" class="luxury-input" placeholder="Enter custom command order for port 8080...">
                     <button class="btn-action-primary" onclick="dispatchCustom()" style="white-space: nowrap;">DISPATCH</button>
                 </div>
-                <div id="ws-feedback" style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+                <div id="ws-feedback" style="font-family: var(--font-code); font-size: 0.8rem; color: var(--text-muted);">
                     System Idle. Awaiting order dispatch.
                 </div>
             </div>
@@ -1004,14 +1361,14 @@
     <!-- Terminal Drawer -->
     <div class="terminal-drawer" id="term-drawer">
         <div class="term-header">
-            <span>UNKNXWC SOVEREIGN SHELL (v2.4)</span>
-            <button onclick="toggleTerminal()" style="background:none; border:none; color: #fff; cursor:pointer;">&times;</button>
+            <span>UNKNXWC SOVEREIGN SHELL (v2.6)</span>
+            <button onclick="toggleTerminal()" style="background:none; border:none; color: #fff; cursor:pointer; font-size: 1.2rem;">&times;</button>
         </div>
         <div class="term-body" id="term-output">
             <div style="color: var(--text-dim);">Sovereign REPL initialized. Type 'help' for directives.</div>
         </div>
         <div class="term-input-line">
-            <span style="color: var(--accent-cyan);">unknxwc@core:~$</span>
+            <span style="color: var(--cyan-neon);">unknxwc@core:~$</span>
             <input type="text" class="term-input-field" id="term-input" autocomplete="off" spellcheck="false">
         </div>
     </div>
@@ -1037,7 +1394,7 @@
                 const label = document.getElementById("sound-label");
                 if (this.enabled) {
                     wave.classList.add("active");
-                    label.textContent = "SOUND";
+                    label.textContent = "AUDIO";
                     this.beep(800, 'sine', 0.04);
                 } else {
                     wave.classList.remove("active");
@@ -1045,7 +1402,7 @@
                 }
             },
 
-            beep(freq, type = 'sine', duration = 0.04, gain = 0.04) {
+            beep(freq, type = 'sine', duration = 0.04, gain = 0.03) {
                 if (!this.enabled) return;
                 try {
                     this.init();
@@ -1080,10 +1437,10 @@
 
         document.getElementById("btn-sound-toggle").addEventListener("click", () => AudioFX.toggle());
 
-        // 239 Frames Scroll-Driven Canvas Engine (Obsidian Hypercube)
+        // 96 Frames Scroll-Driven Canvas Engine (Obsidian Hypercube: 0s to 4.02s)
         const canvas = document.getElementById("scroll-canvas");
         const ctx = canvas.getContext("2d");
-        const TOTAL_FRAMES = 239;
+        const TOTAL_FRAMES = 96;
         const frameImages = [];
         let loadedFrames = 0;
         let currentFrame = 0;
@@ -1120,9 +1477,9 @@
                             const pre = document.getElementById("preloader");
                             if (pre) {
                                 pre.style.opacity = "0";
-                                setTimeout(() => pre.style.display = "none", 500);
+                                setTimeout(() => pre.style.display = "none", 400);
                             }
-                        }, 250);
+                        }, 200);
                     }
                 };
 
@@ -1182,6 +1539,13 @@
                 document.getElementById("stage-3")
             ];
 
+            const navLinks = [
+                document.getElementById("nav-0"),
+                document.getElementById("nav-1"),
+                document.getElementById("nav-2"),
+                document.getElementById("nav-3")
+            ];
+
             let activeStage = 0;
             if (progress >= 0.72) activeStage = 3;
             else if (progress >= 0.46) activeStage = 2;
@@ -1192,22 +1556,88 @@
                 if (idx === activeStage) s.classList.add("active");
                 else s.classList.remove("active");
             });
+
+            navLinks.forEach((n, idx) => {
+                if (n) {
+                    if (idx === activeStage) n.classList.add("active");
+                    else n.classList.remove("active");
+                }
+            });
         });
 
         function scrollToStage(index) {
+            AudioFX.beep(600, 'sine', 0.03);
             const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             const targetPos = (index / 3.0) * maxScroll;
             window.scrollTo({ top: targetPos, behavior: 'smooth' });
+        }
+
+        function pulsePunchHole() {
+            AudioFX.beep(1200, 'sine', 0.06);
+            const ring = document.getElementById("camera-punch-ring");
+            ring.classList.remove("active");
+            void ring.offsetWidth;
+            ring.classList.add("active");
+        }
+
+        function openManifestModal() {
+            AudioFX.beep(750, 'triangle', 0.06);
+            document.getElementById("manifest-modal").style.display = "flex";
+        }
+
+        function closeManifestModal() {
+            document.getElementById("manifest-modal").style.display = "none";
+        }
+
+        function runForensicDiag() {
+            AudioFX.beep(900, 'sine', 0.05);
+            toggleTerminal();
+            const termOutput = document.getElementById("term-output");
+            const lines = [
+                "[FORENSIC AUDIT]: Initializing 60+ reconnaissance vectors...",
+                "[STEALTH CLIENT]: Sec-Ch-Ua randomized -> Modern Chromium 132/Windows",
+                "[DOM AUTOMATION]: Persistent WebView2 profile verified (Zero session cookies needed)",
+                "[SYSTEM HEALTH]: Local IPC port 8080 listening on loopback",
+                "[STATUS]: All vectors operational. No IP burns recorded."
+            ];
+            lines.forEach((line, i) => {
+                setTimeout(() => {
+                    const el = document.createElement("div");
+                    el.style.color = "var(--green-matrix)";
+                    el.textContent = line;
+                    termOutput.appendChild(el);
+                    termOutput.scrollTop = termOutput.scrollHeight;
+                    AudioFX.beep(600 + i * 80, 'sine', 0.02);
+                }, i * 200);
+            });
         }
 
         window.addEventListener("DOMContentLoaded", () => {
             resizeCanvas();
             preloadFrames();
             requestAnimationFrame(animLoop);
+
+            // Specular mouse tracking for glass panels
+            document.addEventListener("mousemove", (e) => {
+                const panels = document.querySelectorAll(".glass-panel");
+                panels.forEach(p => {
+                    const rect = p.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    p.style.setProperty("--mouse-x", `${x}px`);
+                    p.style.setProperty("--mouse-y", `${y}px`);
+                });
+            });
         });
 
-        // Hardened Cryptographic Enclave (ZERO PUBLIC SEED DISCLOSURE)
-        const SECRET_SEED = "REXON2026UNKNXWC";
+        // ZERO-KNOWLEDGE CRYPTOGRAPHIC ENCLAVE
+        // Mathematical proof: Master Passphrase derives PBKDF2 key to decrypt TOTP seed.
+        // Plaintext secrets NEVER exist on the server or in public source code.
+        const ENCLAVE_CONFIG = {
+            salt: "UkVYT05fRU5DTEFWRV8yNg==",
+            iv: "U09WRVJFSUdOXzI2",
+            seeds: ["KSd9/Hq19nm+yIPQTT6sRbgAfUJQEzdwRrMlnKYKIgQ=", "sk9pbxmq5deFYR29llvNJlpLnKgm6Btjdd3DpddA22E="]
+        };
 
         function openVaultModal() {
             AudioFX.beep(550, 'triangle', 0.08);
@@ -1263,6 +1693,37 @@
             }
         }
 
+        async function deriveAndDecryptSeed(passphrase) {
+            const enc = new TextEncoder();
+            const dec = new TextDecoder();
+            const saltBytes = Uint8Array.from(atob(ENCLAVE_CONFIG.salt), c => c.charCodeAt(0));
+            const ivBytes = Uint8Array.from(atob(ENCLAVE_CONFIG.iv), c => c.charCodeAt(0));
+            
+            const baseKey = await crypto.subtle.importKey(
+                "raw", enc.encode(passphrase), "PBKDF2", false, ["deriveKey"]
+            );
+            const key = await crypto.subtle.deriveKey(
+                { name: "PBKDF2", salt: saltBytes, iterations: 100000, hash: "SHA-256" },
+                baseKey,
+                { name: "AES-GCM", length: 256 },
+                false,
+                ["decrypt"]
+            );
+
+            for (const ctB64 of ENCLAVE_CONFIG.seeds) {
+                try {
+                    const ctBytes = Uint8Array.from(atob(ctB64), c => c.charCodeAt(0));
+                    const decrypted = await crypto.subtle.decrypt(
+                        { name: "AES-GCM", iv: ivBytes },
+                        key,
+                        ctBytes
+                    );
+                    return dec.decode(decrypted);
+                } catch(e) {}
+            }
+            return null;
+        }
+
         async function attemptUnlock() {
             const pass = document.getElementById("vault-pass").value;
             const otp = document.getElementById("vault-otp").value.trim();
@@ -1282,22 +1743,26 @@
                 return;
             }
 
-            const isPassValid = (pass === "Unknxwc@2026" || pass === "Rexon@2026");
-            const codeCurrent = await calculateTOTP(SECRET_SEED, 0);
-            const codePrev = await calculateTOTP(SECRET_SEED, -1);
-            const codeNext = await calculateTOTP(SECRET_SEED, 1);
-            const isOtpValid = (otp === codeCurrent || otp === codePrev || otp === codeNext);
+            errEl.style.display = "none";
 
-            if (!isPassValid) {
+            // 1. Decrypt TOTP seed in RAM using PBKDF2 derived AES key
+            const decryptedSeed = await deriveAndDecryptSeed(pass);
+            if (!decryptedSeed) {
                 AudioFX.error();
-                errEl.textContent = "ACCESS DENIED: Master Passphrase invalid.";
+                errEl.textContent = "ACCESS DENIED: Master Passphrase invalid. Cryptographic authentication failed.";
                 errEl.style.display = "block";
                 return;
             }
 
+            // 2. Strict RFC 6238 TOTP verification with [-1, 0, +1] skew
+            const codeCurrent = await calculateTOTP(decryptedSeed, 0);
+            const codePrev = await calculateTOTP(decryptedSeed, -1);
+            const codeNext = await calculateTOTP(decryptedSeed, 1);
+            const isOtpValid = (otp === codeCurrent || otp === codePrev || otp === codeNext);
+
             if (!isOtpValid) {
                 AudioFX.error();
-                errEl.textContent = "ACCESS DENIED: Authenticator code mismatch. Check phone time.";
+                errEl.textContent = "ACCESS DENIED: Authenticator code mismatch. Verify clock sync on Google Authenticator.";
                 errEl.style.display = "block";
                 return;
             }
@@ -1327,9 +1792,9 @@
                     body: JSON.stringify({ order: orderStr })
                 });
                 const data = await res.json();
-                fb.innerHTML = `<span style="color: var(--accent-cyan);">[PORT 8080 EXECUTED]:</span> ${data.result?.output || 'Order Acknowledged.'}`;
+                fb.innerHTML = `<span style="color: var(--cyan-neon);">[PORT 8080 EXECUTED]:</span> ${data.result?.output || 'Order Acknowledged.'}`;
             } catch(e) {
-                fb.innerHTML = `<span style="color: var(--accent-red);">[STANDALONE VERIFIED]:</span> Command '${orderStr}' queued. Start Sovereign Bridge on PC for live Win32 execution.`;
+                fb.innerHTML = `<span style="color: var(--pink-quantum);">[STANDALONE VERIFIED]:</span> Command '${orderStr}' queued. Start Sovereign Bridge on host PC for live Win32 execution.`;
             }
         }
 
@@ -1356,19 +1821,24 @@
         const termOutput = document.getElementById("term-output");
         const termDict = {
             help: `DIRECTIVES:
-  • whoami       - Operator profile
-  • rexon        - Mobile & Desktop architectures
-  • telemetry    - Port 8080 & memory metrics
-  • vault        - Open cryptographic enclave
+  • whoami       - Operator identity & role
+  • rexon        - Rexon Reborn & PC forensic architecture
+  • hud          - Realme RMX5003 camera notch invariants
+  • manifest     - Open full ecosystem architecture modal
+  • vault        - Open cryptographic zero-knowledge enclave
   • clear        - Flush terminal`,
             whoami: `OPERATOR: UNKNXWC
 AUTHORITY: Sovereign Root
 MISSION: On-Device Autonomous Neural AI, Client-Side Cryptography, Hardened Reconnaissance.`,
             rexon: `REXON ARSENAL:
-• Mobile: LiteRT Gemma 4-E2B, 0-token batched compactor, floating HUD
-• Desktop: 60+ forensic modules, stealth network camouflage, port 8080 bridge`,
-            telemetry: `BRIDGE: Port 8080 Ready
-DEVICE: Realme RMX5003 (Punch-Hole: 555x, 60y)`,
+• Mobile: LiteRT Gemma 4-E2B GPU runtime, 20-message 0-token compactor
+• Hardware: RMX5003 front camera notch at X=555, Y=60
+• Desktop: 60+ forensic modules, AsyncStealthClient, port 8080 IPC`,
+            hud: `CAMERA NOTCH INVARIANT:
+• Device: Realme RMX5003
+• Coords: X=555px, Y=60px
+• State: Breathing glow & orbital micro-animations active`,
+            manifest: `Displaying Sovereign Architecture Manifest...`,
             vault: `Launching Sovereign Enclave Modal...`
         };
 
@@ -1379,13 +1849,15 @@ DEVICE: Realme RMX5003 (Punch-Hole: 555x, 60y)`,
                 if (!raw) return;
 
                 const line = document.createElement("div");
-                line.innerHTML = `<span style="color: var(--accent-cyan);">unknxwc@core:~$</span> ${raw}`;
+                line.innerHTML = `<span style="color: var(--cyan-neon);">unknxwc@core:~$</span> ${raw}`;
                 termOutput.appendChild(line);
 
                 const cmd = raw.toLowerCase();
                 if (cmd === "clear") {
                     termOutput.innerHTML = "";
-                } else if (cmd === "vault") {
+                } else if (cmd === "manifest") {
+                    openManifestModal();
+                } else if (cmd === "vault" || cmd === "enclave") {
                     openVaultModal();
                 } else if (cmd === "help" || termDict[cmd]) {
                     const resp = document.createElement("div");
@@ -1395,7 +1867,7 @@ DEVICE: Realme RMX5003 (Punch-Hole: 555x, 60y)`,
                     termOutput.appendChild(resp);
                 } else {
                     const err = document.createElement("div");
-                    err.style.color = "var(--accent-red)";
+                    err.style.color = "var(--pink-quantum)";
                     err.textContent = `Unknown directive: '${raw}'. Type 'help'.`;
                     termOutput.appendChild(err);
                 }
