@@ -40,7 +40,7 @@
             scroll-behavior: smooth;
         }
 
-        /* 1. FULLSCREEN BACKGROUND DUAL-VIDEO CANVAS */
+        /* 1. FULLSCREEN BACKGROUND DUAL-VIDEO CANVAS (HIGH-DPI & CRISP EDGES) */
         #dual-canvas {
             position: fixed;
             top: 0;
@@ -50,17 +50,19 @@
             z-index: 1;
             pointer-events: none;
             background: #000000;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
         }
 
-        /* Cinema Depth & Vignette */
+        /* Cinema Depth & Vignette (Preserving Full Dynamic Range) */
         .cinema-vignette {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none;
             z-index: 2;
             background: 
-                radial-gradient(circle at 50% 50%, transparent 40%, rgba(3, 4, 7, 0.25) 75%, rgba(3, 4, 7, 0.75) 100%),
-                linear-gradient(180deg, rgba(3, 4, 7, 0.4) 0%, transparent 15%, transparent 85%, rgba(3, 4, 7, 0.6) 100%);
+                radial-gradient(circle at 50% 50%, transparent 60%, rgba(3, 4, 7, 0.12) 85%, rgba(3, 4, 7, 0.4) 100%),
+                linear-gradient(180deg, rgba(3, 4, 7, 0.2) 0%, transparent 12%, transparent 88%, rgba(3, 4, 7, 0.3) 100%);
         }
 
         .matrix-grid {
@@ -648,11 +650,165 @@
     </div>
 
     <script>
-        // --- 1. CORE DOM REFS ---
+        // --- 1. CORE DOM REFS & WEBGL 2 HARDWARE CAS ENGINE ---
         const canvas = document.getElementById('dual-canvas');
-        const ctx = canvas.getContext('2d', { alpha: false }); // High performance non-alpha context
         const audioWelcome = document.getElementById('audio-welcome');
         const audioVerified = document.getElementById('audio-verified');
+
+        let gl = null;
+        let ctx2d = null;
+        let casProgram = null;
+        let texA = null, texB = null;
+        let posBuffer = null;
+        let uTexALoc, uTexBLoc, uBlendLoc, uResLoc, uScaleOffsetLoc, uPanOffsetLoc, uSharpnessLoc;
+        let lastLoadedImgA = null, lastLoadedImgB = null;
+
+        function setupRenderer() {
+            try {
+                gl = canvas.getContext('webgl2', {
+                    alpha: false,
+                    antialias: false,
+                    depth: false,
+                    stencil: false,
+                    preserveDrawingBuffer: true,
+                    powerPreference: 'high-performance'
+                });
+            } catch (e) {
+                gl = null;
+            }
+
+            if (gl) {
+                const vsSource = `#version 300 es
+                in vec2 a_pos;
+                out vec2 v_uv;
+                void main() {
+                    gl_Position = vec4(a_pos, 0.0, 1.0);
+                    v_uv = vec2((a_pos.x + 1.0) * 0.5, (1.0 - a_pos.y) * 0.5);
+                }`;
+
+                const fsSource = `#version 300 es
+                precision highp float;
+                in vec2 v_uv;
+                out vec4 fragColor;
+
+                uniform sampler2D u_texA;
+                uniform sampler2D u_texB;
+                uniform float u_blend;
+                uniform vec2 u_resolution;
+                uniform vec2 u_scaleOffset;
+                uniform vec2 u_panOffset;
+                uniform float u_sharpness;
+
+                vec3 sampleFrame(vec2 uv) {
+                    vec2 mapped = uv * u_scaleOffset + u_panOffset;
+                    if (mapped.x < 0.0 || mapped.x > 1.0 || mapped.y < 0.0 || mapped.y > 1.0) {
+                        return vec3(0.0);
+                    }
+                    vec3 cA = texture(u_texA, mapped).rgb;
+                    if (u_blend <= 0.001) return cA;
+                    vec3 cB = texture(u_texB, mapped).rgb;
+                    return mix(cA, cB, u_blend);
+                }
+
+                void main() {
+                    vec2 step = 1.0 / u_resolution;
+
+                    // AMD FidelityFX CAS (Contrast Adaptive Sharpening)
+                    vec3 c = sampleFrame(v_uv);
+                    vec3 a = sampleFrame(v_uv + vec2(0.0, -step.y));
+                    vec3 b = sampleFrame(v_uv + vec2(-step.x, 0.0));
+                    vec3 d = sampleFrame(v_uv + vec2(step.x, 0.0));
+                    vec3 e = sampleFrame(v_uv + vec2(0.0, step.y));
+
+                    vec3 minRGB = min(min(min(a, b), min(c, d)), e);
+                    vec3 maxRGB = max(max(max(a, b), max(c, d)), e);
+
+                    vec3 amp = clamp(min(minRGB, 2.0 - maxRGB) / (maxRGB + 1e-5), 0.0, 1.0);
+                    vec3 w = sqrt(amp) * (-0.125 * u_sharpness);
+
+                    vec3 sharpened = clamp((c + (a + b + d + e) * w) / (1.0 + 4.0 * w), 0.0, 1.0);
+
+                    // AMOLED Pure Black Shadow Gate (Zero Noise in Deep Space)
+                    float lum = dot(c, vec3(0.299, 0.587, 0.114));
+                    float gate = clamp((lum - 0.015) / 0.04, 0.0, 1.0);
+                    vec3 result = mix(c, sharpened, gate);
+
+                    // AMOLED strict black floor
+                    result = max(vec3(0.0), result - vec3(0.002));
+
+                    fragColor = vec4(result, 1.0);
+                }`;
+
+                function compileShader(type, src) {
+                    const s = gl.createShader(type);
+                    gl.shaderSource(s, src);
+                    gl.compileShader(s);
+                    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+                        gl.deleteShader(s);
+                        return null;
+                    }
+                    return s;
+                }
+
+                const vs = compileShader(gl.VERTEX_SHADER, vsSource);
+                const fs = compileShader(gl.FRAGMENT_SHADER, fsSource);
+                if (vs && fs) {
+                    casProgram = gl.createProgram();
+                    gl.attachShader(casProgram, vs);
+                    gl.attachShader(casProgram, fs);
+                    gl.linkProgram(casProgram);
+                    if (gl.getProgramParameter(casProgram, gl.LINK_STATUS)) {
+                        gl.useProgram(casProgram);
+                        uTexALoc = gl.getUniformLocation(casProgram, 'u_texA');
+                        uTexBLoc = gl.getUniformLocation(casProgram, 'u_texB');
+                        uBlendLoc = gl.getUniformLocation(casProgram, 'u_blend');
+                        uResLoc = gl.getUniformLocation(casProgram, 'u_resolution');
+                        uScaleOffsetLoc = gl.getUniformLocation(casProgram, 'u_scaleOffset');
+                        uPanOffsetLoc = gl.getUniformLocation(casProgram, 'u_panOffset');
+                        uSharpnessLoc = gl.getUniformLocation(casProgram, 'u_sharpness');
+
+                        const quadVerts = new Float32Array([
+                            -1.0, -1.0,
+                             1.0, -1.0,
+                            -1.0,  1.0,
+                            -1.0,  1.0,
+                             1.0, -1.0,
+                             1.0,  1.0,
+                        ]);
+                        posBuffer = gl.createBuffer();
+                        gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+                        gl.bufferData(gl.ARRAY_BUFFER, quadVerts, gl.STATIC_DRAW);
+
+                        const aPos = gl.getAttribLocation(casProgram, 'a_pos');
+                        gl.enableVertexAttribArray(aPos);
+                        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+                        texA = gl.createTexture();
+                        gl.bindTexture(gl.TEXTURE_2D, texA);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+                        texB = gl.createTexture();
+                        gl.bindTexture(gl.TEXTURE_2D, texB);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                    } else {
+                        gl = null;
+                    }
+                } else {
+                    gl = null;
+                }
+            }
+
+            if (!gl) {
+                ctx2d = canvas.getContext('2d', { alpha: false });
+            }
+        }
+        setupRenderer();
 
         // --- 2. PROGRESS STATE & PERSISTENT FRAME BUFFER ---
         let targetProgress = 0;
@@ -733,21 +889,73 @@
             return null;
         }
 
-        function drawScaled(img, alpha = 1.0) {
-            if (!img || !img.complete || img.naturalWidth === 0) return;
+        function drawFrame(imgA, imgB = null, blend = 0.0) {
+            if (!imgA || !imgA.complete || imgA.naturalWidth === 0) return;
+            lastRenderedImg = imgA;
+
             const cW = canvas.width, cH = canvas.height;
-            const ratio = Math.max(cW / img.naturalWidth, cH / img.naturalHeight);
-            const dW = Math.ceil(img.naturalWidth * ratio);
-            const dH = Math.ceil(img.naturalHeight * ratio);
+            const imgW = imgA.naturalWidth, imgH = imgA.naturalHeight;
+            const ratio = Math.max(cW / imgW, cH / imgH);
+            const dW = Math.ceil(imgW * ratio);
+            const dH = Math.ceil(imgH * ratio);
             const dX = Math.floor((cW - dW) / 2);
             const dY = Math.floor((cH - dH) / 2);
 
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.globalAlpha = alpha;
-            ctx.drawImage(img, dX, dY, dW, dH);
-            ctx.globalAlpha = 1.0;
-            lastRenderedImg = img;
+            if (gl && casProgram) {
+                gl.viewport(0, 0, cW, cH);
+                gl.useProgram(casProgram);
+
+                // Texture A
+                if (imgA !== lastLoadedImgA) {
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, texA);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgA);
+                    lastLoadedImgA = imgA;
+                } else {
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, texA);
+                }
+                gl.uniform1i(uTexALoc, 0);
+
+                // Texture B (crossfade during transition)
+                if (blend > 0.001 && imgB && imgB.complete && imgB.naturalWidth > 0) {
+                    if (imgB !== lastLoadedImgB) {
+                        gl.activeTexture(gl.TEXTURE1);
+                        gl.bindTexture(gl.TEXTURE_2D, texB);
+                        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgB);
+                        lastLoadedImgB = imgB;
+                    } else {
+                        gl.activeTexture(gl.TEXTURE1);
+                        gl.bindTexture(gl.TEXTURE_2D, texB);
+                    }
+                    gl.uniform1i(uTexBLoc, 1);
+                    gl.uniform1f(uBlendLoc, blend);
+                } else {
+                    gl.uniform1f(uBlendLoc, 0.0);
+                }
+
+                // Aspect Cover mapping
+                const scaleX = cW / dW;
+                const scaleY = cH / dH;
+                const panX = -dX / dW;
+                const panY = -dY / dH;
+
+                gl.uniform2f(uScaleOffsetLoc, scaleX, scaleY);
+                gl.uniform2f(uPanOffsetLoc, panX, panY);
+                gl.uniform2f(uResLoc, cW, cH);
+                gl.uniform1f(uSharpnessLoc, 0.82); // SOTA AMD CAS Sharpness
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+            } else if (ctx2d) {
+                ctx2d.imageSmoothingEnabled = true;
+                ctx2d.imageSmoothingQuality = 'high';
+                ctx2d.drawImage(imgA, dX, dY, dW, dH);
+                if (blend > 0.001 && imgB && imgB.complete && imgB.naturalWidth > 0) {
+                    ctx2d.globalAlpha = blend;
+                    ctx2d.drawImage(imgB, dX, dY, dW, dH);
+                    ctx2d.globalAlpha = 1.0;
+                }
+            }
         }
 
         // --- 4. BULLETPROOF ZERO-BLACK DUAL-STAGE RENDER ENGINE ---
@@ -759,24 +967,23 @@
                 const norm = p / 0.44;
                 const idx = Math.min(95, Math.floor(norm * 95));
                 const frame = getLoadedFrame(hFrames, idx) || lastRenderedImg || hFrames[0] || mFrames[0];
-                if (frame) drawScaled(frame, 1.0);
+                if (frame) drawFrame(frame, null, 0.0);
             } else if (p >= 0.44 && p <= 0.56) {
                 // Seamless Zero-Black Dissolve:
-                // Base is ALWAYS 100% solid Stage 1 End Frame (or lastRenderedImg)
                 const transProgress = (p - 0.44) / 0.12;
                 const fH = getLoadedFrame(hFrames, 95) || lastRenderedImg || hFrames[0];
-                if (fH) drawScaled(fH, 1.0); // Solid opaque base prevents any black background bleed
-
                 const fM = getLoadedFrame(mFrames, 0);
-                if (fM) {
-                    drawScaled(fM, transProgress); // Fade incoming stage smoothly on top
+                if (fH && fM) {
+                    drawFrame(fH, fM, transProgress);
+                } else if (fH) {
+                    drawFrame(fH, null, 0.0);
                 }
             } else {
                 // Stage 2: Crystalline Monolith (Bottom / Narrative)
                 const norm = (p - 0.56) / 0.44;
                 const idx = Math.min(95, Math.floor(norm * 95));
                 const frame = getLoadedFrame(mFrames, idx) || lastRenderedImg || mFrames[0] || hFrames[95];
-                if (frame) drawScaled(frame, 1.0);
+                if (frame) drawFrame(frame, null, 0.0);
             }
         }
 
