@@ -233,35 +233,6 @@
             background: rgba(0, 243, 255, 0.1);
         }
 
-        /* Holographic HUD Reticle Overlay over Monolith */
-        .hud-overlay {
-            position: relative;
-            width: clamp(340px, 42vw, 500px);
-            height: clamp(340px, 42vw, 500px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
-            pointer-events: none;
-        }
-        .hud-svg { width: 100%; height: 100%; overflow: visible; }
-        .hud-chip {
-            position: absolute;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.68rem;
-            color: var(--cyan);
-            letter-spacing: 2px;
-            opacity: 0.85;
-            background: rgba(3, 4, 7, 0.6);
-            padding: 4px 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-        .hc-top { top: 10px; left: 50%; transform: translateX(-50%); }
-        .hc-bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
-        .hc-left { left: -10px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-        .hc-right { right: -10px; top: 50%; transform: translateY(-50%) rotate(90deg); }
 
         /* STAGE 2: THE DEEP REXON NARRATIVE (HYPERCUBE BACKDROP) */
         .narrative-section {
@@ -521,26 +492,6 @@
                 </div>
             </div>
 
-            <!-- Holographic Reticle HUD Overlay -->
-            <div class="hud-overlay" id="hud">
-                <div class="hud-chip hc-top">SYS // CORE ACTIVE 000°</div>
-                <div class="hud-chip hc-bottom">ARCHITECT // UNKNXWC 180°</div>
-                <div class="hud-chip hc-left">NEURAL REFLEX 24Hz</div>
-                
-
-                <svg class="hud-svg" viewBox="0 0 500 500">
-                    
-                    
-                    
-                    
-                    
-                    <circle cx="250" cy="250" r="38" fill="none" stroke="rgba(0,243,255,0.45)" stroke-width="1.5" stroke-dasharray="6 4" class="reticle-pulse" />
-                    <line x1="250" y1="180" x2="250" y2="225" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
-                    <line x1="250" y1="275" x2="250" y2="320" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
-                    <line x1="180" y1="250" x2="225" y2="250" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
-                    <line x1="275" y1="250" x2="320" y2="250" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
-                </svg>
-            </div>
         </main>
 
         <!-- STAGE 2: THE DEEP REXON NARRATIVE (CRYSTALLINE MONOLITH BACKDROP) -->
@@ -1020,18 +971,7 @@
             renderAtProgress(0);
         }
 
-        // --- 7. RETICLE & NAVIGATION ---
-        if (typeof anime !== 'undefined') {
-            anime({
-                targets: '.reticle-pulse',
-                scale: [1, 1.25],
-                opacity: [0.3, 0.8],
-                easing: 'easeInOutSine',
-                duration: 2200,
-                direction: 'alternate',
-                loop: true
-            });
-        }
+        // --- 7. NAVIGATION ---
 
         function scrollToNarrative() {
             const el = document.getElementById('narrative');
