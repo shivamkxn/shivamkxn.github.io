@@ -497,15 +497,13 @@
         <!-- HERO SECTION (STAGE 1: LEVITATING MONOLITH CORE) -->
         <main class="hero-section" id="hero">
             <div class="hero-copy">
-                <div class="hero-chip">
-                    <span style="color: var(--emerald);">●</span> STAGE 01 // LEVITATING MONOLITH
-                </div>
+                
                 <h1 class="hero-title">
                     I am<br>
                     <span class="gradient-text">Rexon.</span>
                 </h1>
                 <p class="hero-desc">
-                    An autonomous intelligence crafted by UNKNXWC. Scroll your mouse wheel to orbit the levitating core and journey into the obsidian hypercube.
+                    An autonomous intelligence crafted by UNKNXWC. Scroll your mouse wheel to explore the obsidian hypercube and journey into the crystalline core.
                 </p>
                 <div class="btn-row">
                     <button class="btn-primary" id="btn-init" onclick="triggerWakeSequence()">
@@ -522,13 +520,13 @@
                 <div class="hud-chip hc-top">SYS // CORE ACTIVE 000°</div>
                 <div class="hud-chip hc-bottom">ARCHITECT // UNKNXWC 180°</div>
                 <div class="hud-chip hc-left">NEURAL REFLEX 24Hz</div>
-                <div class="hud-chip hc-right">STATUS // SOVEREIGN</div>
+                
 
                 <svg class="hud-svg" viewBox="0 0 500 500">
-                    <circle class="arc-cyan" cx="250" cy="250" r="230" fill="none" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="140 1500" stroke-linecap="round" />
-                    <circle class="arc-pink" cx="250" cy="250" r="230" fill="none" stroke="var(--pink)" stroke-width="2.5" stroke-dasharray="90 1500" stroke-dashoffset="-350" stroke-linecap="round" />
-                    <circle class="arc-emerald" cx="250" cy="250" r="230" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-dasharray="70 1500" stroke-dashoffset="-750" stroke-linecap="round" />
-                    <circle class="arc-purple" cx="250" cy="250" r="230" fill="none" stroke="var(--purple)" stroke-width="2.5" stroke-dasharray="110 1500" stroke-dashoffset="-1150" stroke-linecap="round" />
+                    
+                    
+                    
+                    
                     
                     <circle cx="250" cy="250" r="38" fill="none" stroke="rgba(0,243,255,0.45)" stroke-width="1.5" stroke-dasharray="6 4" class="reticle-pulse" />
                     <line x1="250" y1="180" x2="250" y2="225" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
@@ -539,7 +537,7 @@
             </div>
         </main>
 
-        <!-- STAGE 2: THE DEEP REXON NARRATIVE (HYPERCUBE BACKDROP) -->
+        <!-- STAGE 2: THE DEEP REXON NARRATIVE (CRYSTALLINE MONOLITH BACKDROP) -->
         <section class="narrative-section" id="narrative">
             <div class="narrative-header">
                 <div class="narrative-tag">// THE GENESIS OF REXON</div>
@@ -585,15 +583,7 @@
     </div>
 
     <!-- Timeline Scrubber Dock (Bottom-Right) -->
-    <div class="scrubber-dock" id="scrubber-dock">
-        <div class="scrubber-stage-tag" id="scrubber-stage">
-            M:01/96 &bull; MONOLITH
-        </div>
-        <div class="scrubber-ticks-row" id="scrubber-ticks-row" title="Click or scrub frames">
-            <!-- 24 ticks -->
-        </div>
-        <div class="scrubber-time" id="scrubber-time">00:00 / 05:09</div>
-    </div>
+    
 
     <!-- Cryptographic Vault Modal -->
     <div class="vault-modal-overlay" id="vault-modal">
@@ -654,76 +644,42 @@
     </div>
 
     <script>
-        // --- 1. CORE DOM ELEMENTS & REFS ---
+        // --- 1. CORE DOM REFS ---
         const canvas = document.getElementById('dual-canvas');
         const ctx = canvas.getContext('2d');
-        const stageEl = document.getElementById('scrubber-stage');
-        const timeEl = document.getElementById('scrubber-time');
-        const scrubberTicksRow = document.getElementById('scrubber-ticks-row');
         const audioWelcome = document.getElementById('audio-welcome');
         const audioVerified = document.getElementById('audio-verified');
 
-        // --- 2. PROGRESS & TIMELINE STATE ---
+        // --- 2. PROGRESS STATE ---
         let targetProgress = 0;
         let currentProgress = 0;
-        const TICK_COUNT = 24;
 
-        // Build Scrubber Ticks immediately so DOM is ready
-        if (scrubberTicksRow) {
-            for (let i = 0; i < TICK_COUNT; i++) {
-                const tick = document.createElement('div');
-                tick.classList.add('tick-line');
-                tick.addEventListener('click', () => {
-                    targetProgress = i / (TICK_COUNT - 1);
-                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-                    window.scrollTo({ top: targetProgress * maxScroll, behavior: 'smooth' });
-                });
-                scrubberTicksRow.appendChild(tick);
-            }
-        }
-
-        // --- 3. SCRUBBER UI UPDATE ---
-        function updateScrubber(stageName, curFrame, totalFrames, curSec, totalSec) {
-            if (stageEl) {
-                stageEl.textContent = `${stageName} \u2022 F:${String(curFrame).padStart(2, '0')}/${totalFrames}`;
-            }
-            if (timeEl) {
-                timeEl.textContent = `00:${String(curSec).padStart(5, '0')} / ${totalSec}`;
-            }
-            if (scrubberTicksRow && scrubberTicksRow.children.length > 0) {
-                const activeIdx = Math.floor(currentProgress * (TICK_COUNT - 1));
-                const ticks = scrubberTicksRow.children;
-                for (let t = 0; t < ticks.length; t++) {
-                    if (t === activeIdx) ticks[t].classList.add('active');
-                    else ticks[t].classList.remove('active');
-                }
-            }
-        }
-
-        // --- 4. FRAME PRELOADING & RESILIENT FALLBACK ---
-        const mFrames = [];
-        const hFrames = [];
-        let mLoadedCount = 0;
+        // --- 3. DUAL-STAGE FRAME ENGINE (STAGE 1: HYPERCUBE [TOP], STAGE 2: MONOLITH [BOTTOM]) ---
+        const hFrames = []; // 96 Obsidian Hypercube frames (Top / Hero)
+        const mFrames = []; // 96 Crystalline Monolith frames (Bottom / Narrative)
         let hLoadedCount = 0;
+        let mLoadedCount = 0;
 
-        for (let i = 1; i <= 96; i++) {
-            const img = new Image();
-            img.src = `frames/m_${String(i).padStart(4, '0')}.jpg`;
-            img.onload = () => {
-                mLoadedCount++;
-                if (mLoadedCount === 1) renderAtProgress(currentProgress);
-            };
-            mFrames.push(img);
-        }
-
+        // Preload Stage 1: Obsidian Hypercube (Top)
         for (let i = 1; i <= 96; i++) {
             const img = new Image();
             img.src = `frames/h_${String(i).padStart(4, '0')}.jpg`;
             img.onload = () => {
                 hLoadedCount++;
-                if (hLoadedCount === 1 && currentProgress > 0.46) renderAtProgress(currentProgress);
+                if (hLoadedCount === 1) renderAtProgress(currentProgress);
             };
             hFrames.push(img);
+        }
+
+        // Preload Stage 2: Crystalline Monolith (Bottom)
+        for (let i = 1; i <= 96; i++) {
+            const img = new Image();
+            img.src = `frames/m_${String(i).padStart(4, '0')}.jpg`;
+            img.onload = () => {
+                mLoadedCount++;
+                if (mLoadedCount === 1 && currentProgress > 0.46) renderAtProgress(currentProgress);
+            };
+            mFrames.push(img);
         }
 
         function getLoadedFrame(frames, preferredIdx) {
@@ -748,50 +704,51 @@
             const dX = (cW - dW) / 2;
             const dY = (cH - dH) / 2;
 
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
             ctx.globalAlpha = alpha;
             ctx.drawImage(img, dX, dY, dW, dH);
             ctx.globalAlpha = 1.0;
         }
 
-        // --- 5. DUAL-STAGE SEAMLESS DISSOLVE ENGINE ---
+        // --- 4. DUAL-STAGE RENDER (HYPERCUBE TOP -> MONOLITH BOTTOM) ---
         function renderAtProgress(p) {
             p = Math.max(0, Math.min(1, p));
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (p < 0.46) {
-                // Stage 1: Monolith (0.0s to 5.09s)
+                // Stage 1: Obsidian Hypercube (0.0s to 4.02s)
                 const norm = p / 0.46;
-                const idx = Math.min(95, Math.floor(norm * 95));
-                const frame = getLoadedFrame(mFrames, idx);
-                if (frame) drawScaled(frame);
-                updateScrubber('STAGE 01 // MONOLITH', idx + 1, 96, (norm * 5.09).toFixed(2), '05:09');
-            } else if (p >= 0.46 && p <= 0.54) {
-                // Seamless Dissolve Zone
-                const transProgress = (p - 0.46) / 0.08; // 0 to 1
-                const fM = getLoadedFrame(mFrames, 95);
-                const fH = getLoadedFrame(hFrames, 0);
-                if (fM) drawScaled(fM, 1.0 - transProgress);
-                if (fH) drawScaled(fH, transProgress);
-                updateScrubber('TRANSITION // WARP', Math.round(transProgress * 100), 100, (transProgress * 4.02).toFixed(2), '04:02');
-            } else {
-                // Stage 2: Hypercube (0.0s to 4.02s)
-                const norm = (p - 0.54) / 0.46;
                 const idx = Math.min(95, Math.floor(norm * 95));
                 const frame = getLoadedFrame(hFrames, idx);
                 if (frame) drawScaled(frame);
-                updateScrubber('STAGE 02 // HYPERCUBE', idx + 1, 96, (norm * 4.02).toFixed(2), '04:02');
+            } else if (p >= 0.46 && p <= 0.54) {
+                // Seamless Crossfade Dissolve (Hypercube 96 -> Monolith 1)
+                const transProgress = (p - 0.46) / 0.08;
+                const fH = getLoadedFrame(hFrames, 95);
+                const fM = getLoadedFrame(mFrames, 0);
+                if (fH) drawScaled(fH, 1.0 - transProgress);
+                if (fM) drawScaled(fM, transProgress);
+            } else {
+                // Stage 2: Crystalline Monolith (0.0s to 5.09s)
+                const norm = (p - 0.54) / 0.46;
+                const idx = Math.min(95, Math.floor(norm * 95));
+                const frame = getLoadedFrame(mFrames, idx);
+                if (frame) drawScaled(frame);
             }
         }
 
+        // --- 5. HIGH-DPI CANVAS RESIZING (RETINA / 4K / WINDOWS SCALING FIX) ---
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = Math.floor(window.innerWidth * dpr);
+            canvas.height = Math.floor(window.innerHeight * dpr);
             renderAtProgress(currentProgress);
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // --- 6. SCROLL, MOUSE WHEEL & TOUCH INTERACTION ---
+        // --- 6. WHEEL, SCROLL & TOUCH SCRUBBING ---
         window.addEventListener('scroll', () => {
             const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             if (maxScroll > 0) {
@@ -822,12 +779,8 @@
         }
         requestAnimationFrame(animLoop);
 
-        // --- 7. ANIME.JS RETICLE & NAVIGATION ---
+        // --- 7. RETICLE & NAVIGATION ---
         if (typeof anime !== 'undefined') {
-            anime({ targets: '.arc-cyan', rotate: '1turn', duration: 18000, easing: 'linear', loop: true });
-            anime({ targets: '.arc-pink', rotate: '-1turn', duration: 24000, easing: 'linear', loop: true });
-            anime({ targets: '.arc-emerald', rotate: '1turn', duration: 30000, easing: 'linear', loop: true });
-            anime({ targets: '.arc-purple', rotate: '-1turn', duration: 21000, easing: 'linear', loop: true });
             anime({
                 targets: '.reticle-pulse',
                 scale: [1, 1.25],
@@ -851,11 +804,11 @@
             }, 800);
         }
 
-        // --- 8. VOICE & MODAL PROTOCOL ---
+        // --- 8. EDGE TTS ANDREW MULTILINGUAL VOICE & MODAL PROTOCOL ---
         function triggerWakeSequence() {
             if (audioWelcome) {
                 audioWelcome.currentTime = 0;
-                audioWelcome.play().catch(e => { console.log('Audio playback notice:', e); });
+                audioWelcome.play().catch(e => { console.log('Audio notice:', e); });
             }
 
             const modal = document.getElementById('vault-modal');
