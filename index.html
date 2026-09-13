@@ -772,10 +772,11 @@
         let hLoadedCount = 0;
         let mLoadedCount = 0;
 
+        const FRAME_VERSION = 'v14_4k_master';
         function makeFrame(src, onLoadCb) {
             const img = new Image();
             img.decoding = 'async';
-            img.src = src;
+            img.src = src + '?v=' + FRAME_VERSION;
             img.onload = () => {
                 if (onLoadCb) onLoadCb(img);
             };
