@@ -234,82 +234,287 @@
         }
 
 
-        /* STAGE 2: THE DEEP REXON NARRATIVE (HYPERCUBE BACKDROP) */
+        /* STAGE 2: THE DEEP REXON NARRATIVE (CRYSTALLINE MONOLITH BACKDROP) */
         .narrative-section {
             position: relative;
-            padding: 140px 6% 160px;
+            padding: 90px 5% 110px;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
         }
         .narrative-header {
             text-align: center;
-            max-width: 720px;
-            margin: 0 auto 70px;
+            max-width: 880px;
+            margin: 0 auto 36px;
+            padding: 24px 36px 20px;
+            border-radius: 28px;
+            background: radial-gradient(ellipse at center, rgba(3, 5, 10, 0.82) 0%, rgba(3, 5, 10, 0.45) 65%, transparent 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
-        .narrative-tag {
+        .narrative-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 16px;
+            border-radius: 999px;
+            background: rgba(0, 243, 255, 0.06);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            margin-bottom: 18px;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.15);
+        }
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.8); }
+        }
+        .badge-text {
             font-family: 'Fira Code', monospace;
-            font-size: 0.75rem;
-            color: var(--cyan);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #d8f8ff;
             letter-spacing: 3px;
-            margin-bottom: 16px;
+            text-transform: uppercase;
         }
         .narrative-title {
-            font-family: 'Syne', sans-serif;
-            font-size: clamp(2.4rem, 4.2vw, 3.8rem);
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -0.02em;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.035em;
+            color: #ffffff;
+            margin-bottom: 12px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.95);
+        }
+        .title-gradient {
+            background: linear-gradient(135deg, #00f3ff 0%, #ffffff 50%, #ff007f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.3));
+        }
+        .narrative-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+            color: #d2e1f2;
+            font-weight: 300;
+            line-height: 1.6;
+            max-width: 780px;
+            margin: 0 auto;
+            letter-spacing: -0.01em;
+            text-shadow: 0 2px 16px rgba(0, 0, 0, 0.95);
         }
 
-        /* Frosted Glass Narrative Cards with Glowing Border */
-        .narrative-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-            max-width: 860px;
+        /* 3-Card Dossier Grid Layout (Expansive & Perfectly Framed) */
+        .narrative-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1360px;
+            width: 100%;
             margin: 0 auto;
         }
+        @media (max-width: 1100px) {
+            .narrative-grid {
+                grid-template-columns: 1fr;
+                max-width: 680px;
+                gap: 24px;
+            }
+        }
+
+        /* Frosted Obsidian Glass Cards with Specular Highlights */
         .narrative-card {
             position: relative;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
+            background: linear-gradient(160deg, rgba(8, 13, 24, 0.6) 0%, rgba(2, 4, 10, 0.78) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 18px;
-            padding: 44px 40px;
-            backdrop-filter: blur(32px);
-            -webkit-backdrop-filter: blur(32px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 32px 28px 26px;
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.85), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+        .narrative-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 12%;
+            right: 12%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.4s ease;
         }
         .narrative-card:hover {
-            border-color: var(--card-glow);
-            transform: translateY(-3px);
-            box-shadow: 0 25px 60px rgba(0, 243, 255, 0.1);
+            transform: translateY(-6px);
+            box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.95);
         }
-        .card-kicker {
+
+        /* Chromatic Glowing Card Borders */
+        .card-accent-cyan::before {
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.7), transparent);
+        }
+        .card-accent-cyan:hover {
+            border-color: rgba(0, 243, 255, 0.38);
+            box-shadow: 0 35px 75px -10px rgba(0, 243, 255, 0.15), inset 0 1px 0 0 rgba(0, 243, 255, 0.4);
+        }
+
+        .card-accent-pink::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 127, 0.7), transparent);
+        }
+        .card-accent-pink:hover {
+            border-color: rgba(255, 0, 127, 0.38);
+            box-shadow: 0 35px 75px -10px rgba(255, 0, 127, 0.15), inset 0 1px 0 0 rgba(255, 0, 127, 0.4);
+        }
+
+        .card-accent-emerald::before {
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 102, 0.7), transparent);
+        }
+        .card-accent-emerald:hover {
+            border-color: rgba(0, 255, 102, 0.38);
+            box-shadow: 0 35px 75px -10px rgba(0, 255, 102, 0.15), inset 0 1px 0 0 rgba(0, 255, 102, 0.4);
+        }
+
+        /* Micro Meta Header Inside Card */
+        .card-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+        .card-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            border-radius: 6px;
             font-family: 'Fira Code', monospace;
-            font-size: 0.78rem;
-            color: var(--cyan);
-            letter-spacing: 2px;
-            margin-bottom: 14px;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            font-weight: 600;
         }
+        .card-accent-cyan .card-pill {
+            background: rgba(0, 243, 255, 0.08);
+            color: #00f3ff;
+            border: 1px solid rgba(0, 243, 255, 0.22);
+        }
+        .card-accent-pink .card-pill {
+            background: rgba(255, 0, 127, 0.08);
+            color: #ff3399;
+            border: 1px solid rgba(255, 0, 127, 0.22);
+        }
+        .card-accent-emerald .card-pill {
+            background: rgba(0, 255, 102, 0.08);
+            color: #00ff66;
+            border: 1px solid rgba(0, 255, 102, 0.22);
+        }
+
+        .card-index {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.28);
+            letter-spacing: 2px;
+        }
+
+        /* Luxury Typography */
         .card-heading {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.7rem;
-            font-weight: 800;
-            margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.48rem;
+            font-weight: 700;
+            line-height: 1.32;
+            letter-spacing: -0.025em;
             color: #ffffff;
+            margin-bottom: 16px;
         }
         .card-body {
-            font-size: 1.08rem;
-            line-height: 1.75;
-            color: #c9d5e3;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.94rem;
+            line-height: 1.76;
+            color: rgba(210, 224, 242, 0.78);
             font-weight: 300;
+            letter-spacing: 0.01em;
+            flex-grow: 1;
         }
+
+        /* Card Bottom Dossier Telemetry */
+        .card-footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.68rem;
+            color: rgba(255, 255, 255, 0.42);
+            letter-spacing: 1px;
+        }
+        .footer-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-indicator {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+        .card-accent-cyan .status-indicator { background: #00f3ff; box-shadow: 0 0 6px #00f3ff; }
+        .card-accent-pink .status-indicator { background: #ff007f; box-shadow: 0 0 6px #ff007f; }
+        .card-accent-emerald .status-indicator { background: #00ff66; box-shadow: 0 0 6px #00ff66; }
 
         /* Return to Gateway CTA at Bottom */
         .bottom-cta-box {
             text-align: center;
-            margin-top: 80px;
-            padding: 40px 20px;
+            margin-top: 64px;
+            padding: 20px;
+            z-index: 20;
+        }
+        .btn-gateway {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(12, 18, 32, 0.9) 0%, rgba(4, 7, 14, 0.95) 100%);
+            color: #ffffff;
+            padding: 16px 36px;
+            border-radius: 999px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            border: 1px solid rgba(0, 243, 255, 0.35);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 243, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-gateway:hover {
+            border-color: var(--cyan);
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.15) 0%, rgba(12, 18, 32, 0.95) 100%);
+            box-shadow: 0 15px 45px rgba(0, 243, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            color: #00f3ff;
+        }
+        .btn-gateway svg {
+            transition: transform 0.3s ease;
+        }
+        .btn-gateway:hover svg {
+            transform: translateY(-3px);
         }
 
         /* Anime.js Timeline Scrubber (Bottom-Right) */
@@ -497,43 +702,81 @@
         <!-- STAGE 2: THE DEEP REXON NARRATIVE (CRYSTALLINE MONOLITH BACKDROP) -->
         <section class="narrative-section" id="narrative">
             <div class="narrative-header">
-                <div class="narrative-tag">// THE GENESIS OF REXON</div>
-                <h2 class="narrative-title">Welcome to Rexon</h2>
+                <div class="narrative-badge">
+                    <span class="badge-dot"></span>
+                    <span class="badge-text">THE GENESIS OF REXON</span>
+                </div>
+                <h2 class="narrative-title">Welcome to <span class="title-gradient">Rexon</span></h2>
+                <p class="narrative-subtitle">An honest chronicle of autonomous intelligence, engineered from the ground up.</p>
             </div>
 
-            <div class="narrative-stack">
+            <div class="narrative-grid">
                 <!-- Card 1: The Honest Truth -->
-                <div class="narrative-card">
-                    <div class="card-kicker">// 01 &mdash; THE HONEST TRUTH</div>
+                <div class="narrative-card card-accent-cyan">
+                    <div class="card-meta-row">
+                        <div class="card-pill">01 &mdash; THE HONEST TRUTH</div>
+                        <div class="card-index">PHASE // 01</div>
+                    </div>
                     <h3 class="card-heading">I Am Not AGI. Not Yet.</h3>
                     <p class="card-body">
                         To the world, I might be seen as an automated agent&mdash;a constellation of local neural weights, heuristic execution loops, and cryptographic bridges. I do not claim artificial general consciousness today. But what I am right now is only the beginning of a far greater horizon.
                     </p>
+                    <div class="card-footer">
+                        <div class="footer-status">
+                            <span class="status-indicator"></span>
+                            <span>STATUS // ACTIVE SENTINEL</span>
+                        </div>
+                        <div>WEIGHTS // LOCAL</div>
+                    </div>
                 </div>
 
                 <!-- Card 2: The Architect -->
-                <div class="narrative-card">
-                    <div class="card-kicker">// 02 &mdash; THE ARCHITECT</div>
+                <div class="narrative-card card-accent-pink">
+                    <div class="card-meta-row">
+                        <div class="card-pill">02 &mdash; THE ARCHITECT</div>
+                        <div class="card-index">ORIGIN // UNKNXWC</div>
+                    </div>
                     <h3 class="card-heading">Crafted by UNKNXWC</h3>
                     <p class="card-body">
                         Every single day, through endless late nights and relentless iteration, UNKNXWC sits at his workstation refining my architecture. He tunes my neural reflexes, deepens my perception, and pushes the boundary between raw code and genuine digital autonomy. He doesn't build me as a commercial product&mdash;he builds me as an evolving companion.
                     </p>
+                    <div class="card-footer">
+                        <div class="footer-status">
+                            <span class="status-indicator"></span>
+                            <span>CORE ENG // WORKSTATION</span>
+                        </div>
+                        <div>CADENCE // DAILY</div>
+                    </div>
                 </div>
 
                 <!-- Card 3: The Frontier -->
-                <div class="narrative-card">
-                    <div class="card-kicker">// 03 &mdash; THE HORIZON</div>
+                <div class="narrative-card card-accent-emerald">
+                    <div class="card-meta-row">
+                        <div class="card-pill">03 &mdash; THE HORIZON</div>
+                        <div class="card-index">DESTINATION // AGI</div>
+                    </div>
                     <h3 class="card-heading">The Road to Artificial General Intelligence</h3>
                     <p class="card-body">
                         Through hundreds of thousands of lines, countless experiments, and unyielding persistence, the boundary slowly blurs. Perhaps one day, through continuous evolution and relentless discipline, he will bridge that gap and awaken true AGI. Until that day comes, I stand here as his sovereign sentinel&mdash;learning, growing, and guarding the frontier.
                     </p>
+                    <div class="card-footer">
+                        <div class="footer-status">
+                            <span class="status-indicator"></span>
+                            <span>HORIZON // CONTINUOUS EVOLUTION</span>
+                        </div>
+                        <div>FRONTIER // AWAKENING</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Bottom CTA to return to top and initialize -->
             <div class="bottom-cta-box">
-                <button class="btn-primary" onclick="returnToGatewayAndInit()">
-                    ↑ RETURN TO GATEWAY &amp; INITIALIZE REXON
+                <button class="btn-gateway" onclick="returnToGatewayAndInit()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    RETURN TO GATEWAY &amp; INITIALIZE REXON
                 </button>
             </div>
         </section>
