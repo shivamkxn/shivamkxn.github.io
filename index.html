@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REXON // Sovereign Autonomous Intelligence</title>
-    <meta name="theme-color" content="#040608">
+    <meta name="theme-color" content="#030407">
 
-    <!-- Typography (Syne, Inter, Fira Code) -->
+    <!-- Fonts: Syne (Display), Inter (Body), Fira Code (Telemetry/Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Anime.js Engine -->
+    <!-- Anime.js Animation Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 
     <style>
@@ -20,11 +20,11 @@
             --pink: #ff007f;
             --emerald: #00ff66;
             --purple: #9d4edd;
-            --bg: #040608;
-            --surface: rgba(10, 14, 22, 0.7);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(0, 243, 255, 0.25);
-            --text-dim: #8b949e;
+            --bg: #030407;
+            --card-bg: rgba(10, 14, 24, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-glow: rgba(0, 243, 255, 0.35);
+            --text-muted: #8b949e;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -33,64 +33,89 @@
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 50% 10%, rgba(0, 243, 255, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 60%, rgba(157, 78, 221, 0.04) 0%, transparent 60%);
+            scroll-behavior: smooth;
         }
 
-        /* Precision background matrix */
-        .matrix-grid {
+        /* 1. FULLSCREEN BACKGROUND SCROLL CANVAS */
+        #scroll-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+            background: #000000;
+        }
+
+        /* Cinema Vignette & Depth Mask over Video */
+        .cinema-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 2;
+            background: 
+                radial-gradient(circle at 50% 50%, transparent 25%, rgba(3, 4, 7, 0.6) 70%, #030407 100%),
+                linear-gradient(180deg, rgba(3, 4, 7, 0.7) 0%, transparent 20%, transparent 75%, rgba(3, 4, 7, 0.95) 100%);
+        }
+
+        /* Precision matrix grid line overlay */
+        .matrix-lines {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background-size: 64px 64px;
+            background-size: 80px 80px;
             background-image: 
                 linear-gradient(to right, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
             pointer-events: none;
-            z-index: 0;
+            z-index: 3;
         }
 
-        /* Navigation Header */
+        /* Top Navigation Header */
         header {
             position: fixed;
             top: 0; left: 0; width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 6%;
+            padding: 22px 6%;
             z-index: 100;
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            background: rgba(3, 4, 7, 0.5);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(4, 6, 8, 0.6);
         }
-        .brand {
+        .brand-container {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             font-family: 'Syne', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 800;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
         }
         .brand-pill {
             font-family: 'Fira Code', monospace;
             font-size: 0.68rem;
-            padding: 3px 8px;
+            padding: 3px 9px;
             border-radius: 4px;
             background: rgba(0, 243, 255, 0.08);
             color: var(--cyan);
-            border: 1px solid rgba(0, 243, 255, 0.25);
+            border: 1px solid rgba(0, 243, 255, 0.3);
             letter-spacing: 1px;
         }
-        .nav-meta {
+        .nav-telemetry {
             display: flex;
             align-items: center;
             gap: 24px;
             font-family: 'Fira Code', monospace;
-            font-size: 0.8rem;
-            color: var(--text-dim);
+            font-size: 0.78rem;
+            color: var(--text-muted);
         }
-        .status-dot {
+        .live-dot {
             width: 7px; height: 7px;
             background: var(--emerald);
             border-radius: 50%;
@@ -102,35 +127,35 @@
             50% { opacity: 1; transform: scale(1.1); }
         }
 
-        /* Scroll track container */
-        .scroll-container {
+        /* Content Wrapper (z-index: 10) */
+        .content-scroll {
             position: relative;
             z-index: 10;
         }
 
-        /* Hero Section */
+        /* HERO SECTION */
         .hero-section {
             position: relative;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 130px 6% 80px;
+            padding: 130px 6% 90px;
         }
 
-        .hero-copy {
-            max-width: 520px;
+        .hero-left {
+            max-width: 560px;
             z-index: 2;
         }
-        .hero-badge {
+        .hero-chip {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             font-family: 'Fira Code', monospace;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             color: var(--cyan);
             background: rgba(0, 243, 255, 0.06);
-            border: 1px solid rgba(0, 243, 255, 0.2);
+            border: 1px solid rgba(0, 243, 255, 0.22);
             padding: 6px 14px;
             border-radius: 999px;
             margin-bottom: 24px;
@@ -138,29 +163,31 @@
         }
         .hero-title {
             font-family: 'Syne', sans-serif;
-            font-size: clamp(3rem, 5.4vw, 5rem);
+            font-size: clamp(3rem, 5.5vw, 5.2rem);
             font-weight: 900;
-            line-height: 1.04;
+            line-height: 1.03;
             letter-spacing: -0.02em;
             margin-bottom: 24px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
         }
-        .hero-title .gradient-text {
-            background: linear-gradient(135deg, #ffffff 20%, var(--cyan) 75%, var(--purple) 100%);
+        .hero-title .gradient-span {
+            background: linear-gradient(135deg, #ffffff 15%, var(--cyan) 70%, var(--purple) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .hero-desc {
-            font-size: 1.05rem;
+        .hero-description {
+            font-size: 1.1rem;
             line-height: 1.65;
-            color: #9aa4b2;
-            margin-bottom: 36px;
+            color: #c0cad6;
+            margin-bottom: 38px;
             font-weight: 300;
+            text-shadow: 0 2px 15px rgba(0, 0, 0, 0.9);
         }
 
-        .btn-group {
+        .btn-row {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 18px;
             flex-wrap: wrap;
         }
         .btn-primary {
@@ -169,8 +196,8 @@
             align-items: center;
             gap: 10px;
             background: #ffffff;
-            color: #000000;
-            padding: 15px 30px;
+            color: #030407;
+            padding: 16px 32px;
             border-radius: 8px;
             font-family: 'Fira Code', monospace;
             font-size: 0.88rem;
@@ -179,182 +206,89 @@
             cursor: pointer;
             border: none;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 0 35px rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 35px rgba(0, 243, 255, 0.25);
         }
         .btn-primary:hover {
             background: var(--cyan);
-            box-shadow: 0 0 50px rgba(0, 243, 255, 0.5);
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.55);
             transform: translateY(-2px);
         }
-        .btn-secondary {
+        .btn-ghost {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.05);
             color: #ffffff;
-            padding: 15px 26px;
+            padding: 16px 28px;
             border-radius: 8px;
             font-family: 'Fira Code', monospace;
             font-size: 0.88rem;
             letter-spacing: 1px;
             cursor: pointer;
-            border: 1px solid var(--border);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
             transition: all 0.3s ease;
         }
-        .btn-secondary:hover {
-            border-color: rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.08);
+        .btn-ghost:hover {
+            border-color: var(--cyan);
+            background: rgba(0, 243, 255, 0.1);
         }
 
-        /* The Anime.js Signature Chrono-Lens HUD */
-        .hud-stage {
+        /* 2. HOLOGRAPHIC RETICLE HUD OVERLAY (21st.dev style) */
+        .hud-overlay-box {
             position: relative;
-            width: clamp(340px, 44vw, 540px);
-            height: clamp(340px, 44vw, 540px);
+            width: clamp(340px, 42vw, 520px);
+            height: clamp(340px, 42vw, 520px);
             display: flex;
             justify-content: center;
             align-items: center;
             flex-shrink: 0;
-            z-index: 5;
-            user-select: none;
-        }
-
-        /* Circular Bezel SVG with Ticks & Segmented Arcs */
-        .bezel-svg {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
             pointer-events: none;
+        }
+        .hud-svg {
+            width: 100%;
+            height: 100%;
             overflow: visible;
         }
 
-        /* The circular canvas displaying the 3D Monolith (Watermark-free) */
-        .canvas-aperture {
-            position: relative;
-            width: 76%;
-            height: 76%;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 
-                inset 0 0 50px rgba(0, 0, 0, 0.9),
-                0 0 80px rgba(0, 243, 255, 0.15);
-            border: 1.5px solid rgba(0, 243, 255, 0.4);
-            background: #000;
-            cursor: ew-resize;
-        }
-
-        #monolith-canvas {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        /* Precision lens overlay */
-        .lens-crosshair {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            border-radius: 50%;
-            background: 
-                radial-gradient(circle at 50% 50%, transparent 62%, rgba(0, 0, 0, 0.75) 100%),
-                linear-gradient(to right, transparent 49.6%, rgba(0, 243, 255, 0.1) 50%, transparent 50.4%),
-                linear-gradient(to bottom, transparent 49.6%, rgba(0, 243, 255, 0.1) 50%, transparent 50.4%);
-        }
-        .lens-reticle {
-            position: absolute;
-            width: 44px; height: 44px;
-            border: 1px solid rgba(0, 243, 255, 0.5);
-            border-radius: 50%;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-
-        /* Telemetry Labels around the HUD */
-        .telemetry-tag {
+        .telemetry-chip {
             position: absolute;
             font-family: 'Fira Code', monospace;
             font-size: 0.68rem;
             color: var(--cyan);
             letter-spacing: 2px;
             opacity: 0.85;
-            pointer-events: none;
+            background: rgba(3, 4, 7, 0.6);
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            backdrop-filter: blur(10px);
         }
-        .t-top { top: -24px; left: 50%; transform: translateX(-50%); }
-        .t-bottom { bottom: -24px; left: 50%; transform: translateX(-50%); }
-        .t-left { left: -36px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-        .t-right { right: -36px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+        .tc-top { top: 10px; left: 50%; transform: translateX(-50%); }
+        .tc-bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .tc-left { left: -10px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+        .tc-right { right: -10px; top: 50%; transform: translateY(-50%) rotate(90deg); }
 
-        /* The Anime.js Timeline Scrubber (Bottom Right) */
-        .scrubber-bar {
-            position: fixed;
-            bottom: 34px;
-            right: 48px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: rgba(12, 16, 24, 0.85);
-            border: 1px solid var(--border);
-            padding: 12px 22px;
-            border-radius: 999px;
-            backdrop-filter: blur(24px);
-            z-index: 50;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            user-select: none;
-        }
-        .scrubber-ticks {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            padding: 6px 0;
-        }
-        .s-tick {
-            width: 3px;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-            transition: all 0.15s ease;
-        }
-        .s-tick:hover {
-            background: #ffffff;
-            height: 18px;
-        }
-        .s-tick.active {
-            background: var(--cyan);
-            height: 22px;
-            box-shadow: 0 0 10px var(--cyan);
-        }
-        .scrubber-meta {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.75rem;
-            color: #c9d1d9;
-            min-width: 95px;
-            text-align: right;
-        }
-
-        /* Bento Grid Section (21st.dev style) */
+        /* 3. BENTO GRID SECTION (21st.dev + UI/UX Pro Max) */
         .bento-section {
-            padding: 80px 6% 160px;
+            padding: 100px 6% 160px;
             position: relative;
-            z-index: 10;
         }
-        .section-header {
+        .bento-header {
             text-align: center;
-            max-width: 600px;
+            max-width: 680px;
             margin: 0 auto 60px;
         }
-        .section-tag {
+        .bento-tag {
             font-family: 'Fira Code', monospace;
             font-size: 0.75rem;
             color: var(--cyan);
             letter-spacing: 3px;
             margin-bottom: 12px;
         }
-        .section-title {
+        .bento-title {
             font-family: 'Syne', sans-serif;
-            font-size: clamp(2rem, 3.8vw, 3.2rem);
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
             font-weight: 800;
             letter-spacing: -0.02em;
         }
@@ -364,50 +298,121 @@
             grid-template-columns: repeat(12, 1fr);
             gap: 24px;
         }
+
+        /* Cursor Glowing Border Card (21st.dev GlowingEffect pattern) */
         .bento-card {
             position: relative;
-            background: var(--surface);
-            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 36px;
+            padding: 38px 32px;
             overflow: hidden;
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .bento-card:hover {
-            border-color: var(--border-glow);
-            transform: translateY(-4px);
-            box-shadow: 0 15px 45px rgba(0, 243, 255, 0.08);
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent 40%, rgba(0, 243, 255, 0.25) 80%, transparent 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
         }
-        .b-span-8 { grid-column: span 8; }
-        .b-span-4 { grid-column: span 4; }
-        .b-span-6 { grid-column: span 6; }
+        .bento-card:hover {
+            border-color: var(--card-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(0, 243, 255, 0.1);
+        }
+        .span-8 { grid-column: span 8; }
+        .span-4 { grid-column: span 4; }
+        .span-6 { grid-column: span 6; }
 
-        .card-num {
+        .bento-idx {
             font-family: 'Fira Code', monospace;
             font-size: 0.78rem;
             color: var(--cyan);
             margin-bottom: 16px;
             letter-spacing: 2px;
         }
-        .card-title {
+        .bento-name {
             font-family: 'Syne', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.55rem;
             font-weight: 800;
             margin-bottom: 12px;
         }
-        .card-desc {
+        .bento-desc {
             font-size: 0.95rem;
             color: #9aa4b2;
-            line-height: 1.6;
+            line-height: 1.65;
+            font-weight: 300;
         }
 
-        /* Cryptographic Vault Modal */
-        .modal-overlay {
+        /* 4. ANIME.JS TIMELINE SCRUBBER (Bottom-Right) */
+        .scrubber-dock {
+            position: fixed;
+            bottom: 34px;
+            right: 48px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(10, 14, 24, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px 22px;
+            border-radius: 999px;
+            backdrop-filter: blur(24px);
+            z-index: 80;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            user-select: none;
+        }
+        .scrubber-frame-tag {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.72rem;
+            color: var(--cyan);
+            letter-spacing: 1px;
+            min-width: 80px;
+        }
+        .scrubber-ticks-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        .tick-line {
+            width: 3px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            transition: all 0.15s ease;
+        }
+        .tick-line:hover {
+            background: #ffffff;
+            height: 18px;
+        }
+        .tick-line.active {
+            background: var(--cyan);
+            height: 22px;
+            box-shadow: 0 0 10px var(--cyan);
+        }
+        .scrubber-time {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: #c9d1d9;
+            min-width: 95px;
+            text-align: right;
+        }
+
+        /* 5. CRYPTOGRAPHIC VAULT MODAL */
+        .vault-modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(4, 6, 8, 0.9);
-            backdrop-filter: blur(28px);
+            background: rgba(3, 4, 7, 0.92);
+            backdrop-filter: blur(32px);
             z-index: 200;
             display: none;
             align-items: center;
@@ -416,45 +421,45 @@
             opacity: 0;
             transition: opacity 0.4s ease;
         }
-        .vault-box {
+        .vault-card {
             width: 100%;
-            max-width: 440px;
-            background: rgba(12, 16, 24, 0.95);
-            border: 1px solid rgba(0, 243, 255, 0.35);
-            border-radius: 16px;
+            max-width: 450px;
+            background: rgba(12, 16, 26, 0.95);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            border-radius: 18px;
             padding: 42px 34px;
-            box-shadow: 0 0 80px rgba(0, 243, 255, 0.15);
+            box-shadow: 0 0 90px rgba(0, 243, 255, 0.18);
             position: relative;
         }
         .vault-header {
             text-align: center;
             margin-bottom: 28px;
         }
-        .vault-badge {
+        .vault-kicker {
             font-family: 'Fira Code', monospace;
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             color: var(--cyan);
             letter-spacing: 3px;
         }
-        .vault-title {
+        .vault-headline {
             font-family: 'Syne', sans-serif;
-            font-size: 1.8rem;
+            font-size: 1.85rem;
             font-weight: 800;
             margin-top: 8px;
         }
-        .luxury-field { margin-bottom: 20px; }
-        .field-label {
+        .input-group { margin-bottom: 22px; }
+        .input-label {
             display: block;
             font-family: 'Fira Code', monospace;
             font-size: 0.72rem;
-            color: var(--text-dim);
+            color: var(--text-muted);
             margin-bottom: 8px;
             letter-spacing: 1px;
         }
-        .luxury-input {
+        .secure-input {
             width: 100%;
-            background: #020305;
-            border: 1px solid var(--border);
+            background: #020306;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             padding: 14px 16px;
             color: #ffffff;
@@ -463,14 +468,14 @@
             outline: none;
             transition: all 0.3s ease;
         }
-        .luxury-input:focus {
+        .secure-input:focus {
             border-color: var(--cyan);
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.25);
         }
-        .vault-error {
+        .vault-alert {
             display: none;
             color: #ff4d6d;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-family: 'Fira Code', monospace;
             padding: 10px;
             background: rgba(255, 77, 109, 0.1);
@@ -480,41 +485,41 @@
             text-align: center;
         }
 
-        /* Decrypted Root Workspace */
+        /* 6. DECRYPTED ROOT WORKSPACE */
         #decrypted-workspace {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #040608;
+            background: #030407;
             z-index: 500;
             display: none;
             padding: 50px 8%;
             overflow-y: auto;
         }
-        .deck-header {
+        .deck-topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding-bottom: 24px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--card-border);
             margin-bottom: 36px;
         }
-        .cmd-grid {
+        .cmd-deck-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
             margin-bottom: 40px;
         }
-        .cmd-card {
-            background: rgba(14, 18, 26, 0.8);
-            border: 1px solid var(--border);
+        .cmd-box {
+            background: rgba(14, 18, 28, 0.8);
+            border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 24px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        .cmd-card:hover {
+        .cmd-box:hover {
             border-color: var(--cyan);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.25);
             transform: translateY(-3px);
         }
 
@@ -524,26 +529,29 @@
                 text-align: center;
                 padding-top: 110px;
             }
-            .hero-copy { margin-bottom: 50px; }
-            .btn-group { justify-content: center; }
-            .scrubber-bar { right: 50%; transform: translateX(50%); bottom: 20px; }
-            .b-span-8, .b-span-4, .b-span-6 { grid-column: span 12; }
+            .hero-left { margin-bottom: 50px; }
+            .btn-row { justify-content: center; }
+            .scrubber-dock { right: 50%; transform: translateX(50%); bottom: 20px; }
+            .span-8, .span-4, .span-6 { grid-column: span 12; }
         }
     </style>
 </head>
 <body>
 
-    <div class="matrix-grid"></div>
+    <!-- 1. FULLSCREEN SCROLL CANVAS BACKGROUND (Watermark-Free 16:9 Monolith) -->
+    <canvas id="scroll-canvas"></canvas>
+    <div class="cinema-vignette"></div>
+    <div class="matrix-lines"></div>
 
     <!-- Top Navigation -->
     <header>
-        <div class="brand">
+        <div class="brand-container">
             <span>REXON</span>
             <div class="brand-pill">SOVEREIGN CORE</div>
         </div>
-        <div class="nav-meta">
+        <div class="nav-telemetry">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <div class="status-dot"></div>
+                <div class="live-dot"></div>
                 <span>PORT 8080 READY</span>
             </div>
             <span style="opacity: 0.25;">|</span>
@@ -551,114 +559,96 @@
         </div>
     </header>
 
-    <div class="scroll-container">
-        <!-- Hero Showcase Section -->
+    <!-- Content Wrapper Over Fullscreen Background -->
+    <div class="content-scroll">
+        <!-- Hero Section -->
         <main class="hero-section" id="hero">
-            <div class="hero-copy">
-                <div class="hero-badge">
-                    <span style="color: var(--emerald);">●</span> SCROLL-DRIVEN 3D CORE
+            <div class="hero-left">
+                <div class="hero-chip">
+                    <span style="color: var(--emerald);">●</span> FULLSCREEN SCROLL-DRIVEN CORE
                 </div>
                 <h1 class="hero-title">
                     Sovereign<br>
-                    <span class="gradient-text">Autonomous AI</span><br>
+                    <span class="gradient-span">Autonomous AI</span><br>
                     Intelligence.
                 </h1>
-                <p class="hero-desc">
-                    Dual-platform neural operative engineered by UNKNXWC. Scroll your mouse wheel to orbit the levitating crystalline core. Zero cloud dependency.
+                <p class="hero-description">
+                    Dual-platform neural operative engineered by UNKNXWC. Scroll with your mouse to rotate and levitate the crystalline monolith in real-time. Zero cloud dependency.
                 </p>
-                <div class="btn-group">
+                <div class="btn-row">
                     <button class="btn-primary" id="btn-init" onclick="triggerWakeSequence()">
                         INITIALIZE ENCLAVE →
                     </button>
-                    <button class="btn-secondary" onclick="scrollToBento()">
+                    <button class="btn-ghost" onclick="scrollToBento()">
                         EXPLORE ARCHITECTURE ↓
                     </button>
                 </div>
             </div>
 
-            <!-- The Anime.js Signature Chrono-Lens HUD -->
-            <div class="hud-stage" id="hud">
-                <!-- Telemetry markers -->
-                <div class="telemetry-tag t-top">SYS // LEVITATION CORE 000°</div>
-                <div class="telemetry-tag t-bottom">VECTORS // 60+ ACTIVE 180°</div>
-                <div class="telemetry-tag t-left">555x60 PUNCH-HOLE</div>
-                <div class="telemetry-tag t-right">24 FPS LITERT</div>
+            <!-- 2. Holographic HUD Reticle floating over the Monolith -->
+            <div class="hud-overlay-box" id="hud">
+                <div class="telemetry-chip tc-top">SYS // LEVITATION CORE 000°</div>
+                <div class="telemetry-chip tc-bottom">VECTORS // 60+ ACTIVE 180°</div>
+                <div class="telemetry-chip tc-left">555x60 PUNCH-HOLE</div>
+                <div class="telemetry-chip tc-right">24 FPS LITERT GPU</div>
 
-                <!-- Outer Precision Instrument Bezel (SVG) -->
-                <svg class="bezel-svg" viewBox="0 0 540 540" id="bezel-svg">
-                    <circle cx="270" cy="270" r="260" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
-                    <circle cx="270" cy="270" r="248" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+                <svg class="hud-svg" viewBox="0 0 520 520">
+                    <!-- Rotating HUD arcs -->
+                    <circle class="hud-arc-cyan" cx="260" cy="260" r="240" fill="none" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="140 1500" stroke-linecap="round" />
+                    <circle class="hud-arc-pink" cx="260" cy="260" r="240" fill="none" stroke="var(--pink)" stroke-width="2.5" stroke-dasharray="90 1500" stroke-dashoffset="-350" stroke-linecap="round" />
+                    <circle class="hud-arc-emerald" cx="260" cy="260" r="240" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-dasharray="70 1500" stroke-dashoffset="-750" stroke-linecap="round" />
+                    <circle class="hud-arc-purple" cx="260" cy="260" r="240" fill="none" stroke="var(--purple)" stroke-width="2.5" stroke-dasharray="110 1500" stroke-dashoffset="-1150" stroke-linecap="round" />
                     
-                    <!-- Precision Ticks Group -->
-                    <g id="svg-ticks"></g>
-
-                    <!-- Rotating Segmented Colored Arcs (Anime.js signature) -->
-                    <circle class="arc-cyan" cx="270" cy="270" r="254" fill="none" 
-                        stroke="var(--cyan)" stroke-width="3" stroke-linecap="round"
-                        stroke-dasharray="120 1500" stroke-dashoffset="0" />
-                    
-                    <circle class="arc-pink" cx="270" cy="270" r="254" fill="none" 
-                        stroke="var(--pink)" stroke-width="3" stroke-linecap="round"
-                        stroke-dasharray="80 1500" stroke-dashoffset="-300" />
-                    
-                    <circle class="arc-emerald" cx="270" cy="270" r="254" fill="none" 
-                        stroke="var(--emerald)" stroke-width="2.5" stroke-linecap="round"
-                        stroke-dasharray="60 1500" stroke-dashoffset="-700" />
-
-                    <circle class="arc-purple" cx="270" cy="270" r="254" fill="none" 
-                        stroke="var(--purple)" stroke-width="3" stroke-linecap="round"
-                        stroke-dasharray="100 1500" stroke-dashoffset="-1050" />
+                    <!-- Center Targeting Crosshairs -->
+                    <circle cx="260" cy="260" r="40" fill="none" stroke="rgba(0,243,255,0.4)" stroke-width="1.5" stroke-dasharray="6 4" class="reticle-center" />
+                    <line x1="260" y1="180" x2="260" y2="230" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
+                    <line x1="260" y1="290" x2="260" y2="340" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
+                    <line x1="180" y1="260" x2="230" y2="260" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
+                    <line x1="290" y1="260" x2="340" y2="260" stroke="rgba(0,243,255,0.3)" stroke-width="1.5" />
                 </svg>
-
-                <!-- Circular Aperture: The Watermark-Free 3D Monolith Canvas -->
-                <div class="canvas-aperture" id="aperture" title="Scroll or Drag to Scrub Core">
-                    <canvas id="monolith-canvas" width="720" height="720"></canvas>
-                    <div class="lens-crosshair"></div>
-                    <div class="lens-reticle"></div>
-                </div>
             </div>
         </main>
 
-        <!-- Bento Grid Section (UI/UX Pro Max + 21st.dev Style) -->
+        <!-- 3. Bento Grid Section (21st.dev + UI/UX Pro Max) -->
         <section class="bento-section" id="bento">
-            <div class="section-header">
-                <div class="section-tag">SOVEREIGN ARCHITECTURE</div>
-                <h2 class="section-title">Engineered For Autonomous Dominance</h2>
+            <div class="bento-header">
+                <div class="bento-tag">SOVEREIGN ARCHITECTURE</div>
+                <h2 class="bento-title">Engineered For Autonomous Dominance</h2>
             </div>
 
             <div class="bento-grid">
-                <!-- Bento 1: On-Device Engine -->
-                <div class="bento-card b-span-8">
-                    <div class="card-num">// 01 &mdash; NEURAL CORE</div>
-                    <h3 class="card-title">LiteRT On-Device Acceleration</h3>
-                    <p class="card-desc">
-                        Direct GPU-accelerated local inference powered by Google LiteRT and Gemma 4-E2B. Zero telemetry leaked to external cloud servers, operating with sub-40ms intent resolution directly on Android hardware.
+                <!-- Bento 1: LiteRT Core -->
+                <div class="bento-card span-8">
+                    <div class="bento-idx">// 01 &mdash; NEURAL ACCELERATION</div>
+                    <h3 class="bento-name">LiteRT On-Device Inference</h3>
+                    <p class="bento-desc">
+                        Direct Mali GPU-accelerated local inference powered by Google LiteRT and Gemma 4-E2B. Sub-40ms intent resolution executing completely on-device with zero telemetry leaked to external servers.
                     </p>
                 </div>
 
-                <!-- Bento 2: Hardware Alignment -->
-                <div class="bento-card b-span-4">
-                    <div class="card-num">// 02 &mdash; HARDWARE</div>
-                    <h3 class="card-title">555x60 Invariant</h3>
-                    <p class="card-desc">
+                <!-- Bento 2: Hardware Invariant -->
+                <div class="bento-card span-4">
+                    <div class="bento-idx">// 02 &mdash; HARDWARE</div>
+                    <h3 class="bento-name">555x60 Invariant</h3>
+                    <p class="bento-desc">
                         Pixel-calibrated orbital ring HUD engineered around the Realme RMX5003 camera punch-hole (X: 555px, Y: 60px).
                     </p>
                 </div>
 
                 <!-- Bento 3: Forensic Matrix -->
-                <div class="bento-card b-span-6">
-                    <div class="card-num">// 03 &mdash; INTELLIGENCE</div>
-                    <h3 class="card-title">60+ Forensic Vectors</h3>
-                    <p class="card-desc">
+                <div class="bento-card span-6">
+                    <div class="bento-idx">// 03 &mdash; FORENSICS</div>
+                    <h3 class="bento-name">60+ Recon Vectors</h3>
+                    <p class="bento-desc">
                         Autonomous OSINT extraction, Truecaller session persistence, and anti-ban stealth socket bridging built on zero-friction network camouflage.
                     </p>
                 </div>
 
-                <!-- Bento 4: Zero-Leak Cryptography -->
-                <div class="bento-card b-span-6">
-                    <div class="card-num">// 04 &mdash; SECURITY</div>
-                    <h3 class="card-title">PBKDF2 / AES-256-GCM</h3>
-                    <p class="card-desc">
+                <!-- Bento 4: Cryptographic Enclave -->
+                <div class="bento-card span-6">
+                    <div class="bento-idx">// 04 &mdash; SECURITY</div>
+                    <h3 class="bento-name">PBKDF2 / AES-256-GCM</h3>
+                    <p class="bento-desc">
                         Zero-leak cryptographic enclave. Seed credentials decrypted purely in volatile RAM upon dual-factor authorization (Passphrase + RFC 6238 TOTP).
                     </p>
                 </div>
@@ -666,35 +656,35 @@
         </section>
     </div>
 
-    <!-- Anime.js Timeline Scrubber Control (Bottom Right) -->
-    <div class="scrubber-bar" id="scrubber-bar">
-        <div style="font-family: 'Fira Code', monospace; font-size: 0.72rem; color: var(--cyan); letter-spacing: 1px;">
-            FRAME <span id="frame-num">01</span>/96
+    <!-- 4. Anime.js Timeline Scrubber (Bottom Right) -->
+    <div class="scrubber-dock" id="scrubber-dock">
+        <div class="scrubber-frame-tag">
+            FRAME <span id="cur-frame">01</span>/96
         </div>
-        <div class="scrubber-ticks" id="scrubber-ticks" title="Click or scrub frames">
+        <div class="scrubber-ticks-row" id="scrubber-ticks-row" title="Click or scrub frames">
             <!-- 24 ticks generated by JS -->
         </div>
-        <div class="scrubber-meta" id="timecode">00:00 / 05:09</div>
+        <div class="scrubber-time" id="cur-time">00:00 / 05:09</div>
     </div>
 
-    <!-- Cryptographic Vault Modal -->
-    <div class="modal-overlay" id="vault-modal">
-        <div class="vault-box">
+    <!-- 5. Cryptographic Vault Modal -->
+    <div class="vault-modal-overlay" id="vault-modal">
+        <div class="vault-card">
             <div class="vault-header">
-                <span class="vault-badge">RESTRICTED ACCESS</span>
-                <h3 class="vault-title">VERIFY IDENTITY</h3>
+                <span class="vault-kicker">RESTRICTED ACCESS</span>
+                <h3 class="vault-headline">VERIFY IDENTITY</h3>
             </div>
             
-            <div class="vault-error" id="vault-err"></div>
+            <div class="vault-alert" id="vault-err"></div>
 
-            <div class="luxury-field">
-                <label class="field-label">MASTER PASSPHRASE</label>
-                <input type="password" id="vault-pass" class="luxury-input" placeholder="••••••••••••">
+            <div class="input-group">
+                <label class="input-label">MASTER PASSPHRASE</label>
+                <input type="password" id="vault-pass" class="secure-input" placeholder="••••••••••••">
             </div>
 
-            <div class="luxury-field">
-                <label class="field-label">GOOGLE AUTHENTICATOR CODE (6-DIGIT)</label>
-                <input type="text" id="vault-otp" class="luxury-input" maxlength="6" placeholder="000000" style="letter-spacing: 10px; text-align: center; font-size: 1.25rem;">
+            <div class="input-group">
+                <label class="input-label">GOOGLE AUTHENTICATOR CODE (6-DIGIT)</label>
+                <input type="text" id="vault-otp" class="secure-input" maxlength="6" placeholder="000000" style="letter-spacing: 10px; text-align: center; font-size: 1.25rem;">
             </div>
 
             <button class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="attemptUnlock()">
@@ -703,93 +693,67 @@
         </div>
     </div>
 
-    <!-- Decrypted Root Workspace -->
+    <!-- 6. Decrypted Root Workspace -->
     <div id="decrypted-workspace">
-        <div class="deck-header">
+        <div class="deck-topbar">
             <div>
                 <h2 style="font-family: 'Syne', sans-serif; font-size: 2rem;">UNKNXWC COMMAND CORE</h2>
                 <div style="color: var(--cyan); font-family: 'Fira Code'; font-size: 0.8rem; margin-top: 5px;">Root Access Verified. IPC Bridge Active on Port 8080.</div>
             </div>
-            <button class="btn-secondary" style="border-color: var(--pink); color: var(--pink);" onclick="location.reload()">LOCKDOWN</button>
+            <button class="btn-ghost" style="border-color: var(--pink); color: var(--pink);" onclick="location.reload()">LOCKDOWN</button>
         </div>
 
-        <div class="cmd-grid">
-            <div class="cmd-card" onclick="dispatchCmd('LOCK_PC')">
+        <div class="cmd-deck-grid">
+            <div class="cmd-box" onclick="dispatchCmd('LOCK_PC')">
                 <h3 style="margin-bottom: 8px; font-family: 'Syne'; font-size: 1.2rem;">LOCK WORKSTATION</h3>
-                <p style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.5;">Trigger Win32 Desktop Lock via Port 8080</p>
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Trigger Win32 Desktop Lock via Port 8080</p>
             </div>
-            <div class="cmd-card" onclick="dispatchCmd('TAKE_SCREENSHOT')">
+            <div class="cmd-box" onclick="dispatchCmd('TAKE_SCREENSHOT')">
                 <h3 style="margin-bottom: 8px; font-family: 'Syne'; font-size: 1.2rem;">CAPTURE SCREEN</h3>
-                <p style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.5;">Forensic screenshot dump of host monitor</p>
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Forensic screenshot dump of host monitor</p>
             </div>
-            <div class="cmd-card" onclick="dispatchCmd('BACKUP_REXON')">
+            <div class="cmd-box" onclick="dispatchCmd('BACKUP_REXON')">
                 <h3 style="margin-bottom: 8px; font-family: 'Syne'; font-size: 1.2rem;">TRIGGER BACKUP</h3>
-                <p style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.5;">Execute anti-bloat deduplicated archive routine</p>
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Execute anti-bloat deduplicated archive routine</p>
             </div>
         </div>
 
-        <div style="background: rgba(14,18,26,0.8); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+        <div style="background: rgba(12, 16, 26, 0.85); border: 1px solid var(--card-border); border-radius: 14px; padding: 26px;">
             <h3 style="font-family: 'Syne'; margin-bottom: 12px;">SOVEREIGN ENCRYPTED STASH (AES-256-GCM)</h3>
-            <textarea id="stash-notes" class="luxury-input" rows="8" placeholder="Enter confidential directives..." style="resize: vertical;"></textarea>
+            <textarea id="stash-notes" class="secure-input" rows="8" placeholder="Enter confidential directives..." style="resize: vertical;"></textarea>
             <button class="btn-primary" style="margin-top: 16px;" onclick="saveStashNotes()">SAVE TO SECURE STORAGE</button>
         </div>
     </div>
 
     <script>
-        // --- 1. SVG TICK MARKS GENERATION ---
-        const ticksG = document.getElementById('svg-ticks');
-        for (let i = 0; i < 72; i++) {
-            const angle = (i * 5) * (Math.PI / 180);
-            const isMajor = i % 6 === 0;
-            const r1 = isMajor ? 240 : 246;
-            const r2 = 252;
-            const x1 = 270 + r1 * Math.cos(angle);
-            const y1 = 270 + r1 * Math.sin(angle);
-            const x2 = 270 + r2 * Math.cos(angle);
-            const y2 = 270 + r2 * Math.sin(angle);
-
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x1); line.setAttribute('y1', y1);
-            line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-            line.setAttribute('stroke', isMajor ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.08)');
-            line.setAttribute('stroke-width', isMajor ? '1.5' : '1');
-            ticksG.appendChild(line);
-        }
-
-        // --- 2. ANIME.JS ARC CHOREOGRAPHY ---
-        anime({ targets: '.arc-cyan', rotate: '1turn', duration: 16000, easing: 'linear', loop: true });
-        anime({ targets: '.arc-pink', rotate: '-1turn', duration: 22000, easing: 'linear', loop: true });
-        anime({ targets: '.arc-emerald', rotate: '1turn', duration: 28000, easing: 'linear', loop: true });
-        anime({ targets: '.arc-purple', rotate: '-1turn', duration: 19000, easing: 'linear', loop: true });
-
-        anime({
-            targets: '.lens-reticle',
-            scale: [1, 1.2],
-            opacity: [0.3, 0.7],
-            easing: 'easeInOutSine',
-            duration: 2200,
-            direction: 'alternate',
-            loop: true
-        });
-
-        // --- 3. 96-FRAME PURE SCROLL-DRIVEN ENGINE (NO AUTOPLAY) ---
-        const canvas = document.getElementById('monolith-canvas');
+        // --- 1. FULLSCREEN BACKGROUND SCROLL CANVAS ENGINE (NO AUTOPLAY) ---
+        const canvas = document.getElementById('scroll-canvas');
         const ctx = canvas.getContext('2d');
         const TOTAL_FRAMES = 96;
         const frames = [];
-        let currentFrameIndex = 0;
+        let isLoaded = false;
         let targetProgress = 0;
         let currentProgress = 0;
-        let isLoaded = false;
+        let lastDrawnFrame = -1;
 
-        // Preload all 96 cropped frames
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (isLoaded && lastDrawnFrame >= 0) {
+                drawFrame(lastDrawnFrame);
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Preload all 96 widescreen frames
         for (let i = 1; i <= TOTAL_FRAMES; i++) {
             const img = new Image();
             img.src = `frames/frame_${String(i).padStart(4, '0')}.jpg`;
             img.onload = () => {
                 if (i === 1) {
-                    drawFrame(0);
                     isLoaded = true;
+                    resizeCanvas();
+                    drawFrame(0);
                 }
             };
             frames.push(img);
@@ -798,41 +762,19 @@
         function drawFrame(idx) {
             const img = frames[idx];
             if (!img || !img.complete) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            currentFrameIndex = idx;
+            const cW = canvas.width, cH = canvas.height;
+            const ratio = Math.max(cW / img.naturalWidth, cH / img.naturalHeight);
+            const dW = img.naturalWidth * ratio;
+            const dH = img.naturalHeight * ratio;
+            const dX = (cW - dW) / 2;
+            const dY = (cH - dH) / 2;
+
+            ctx.clearRect(0, 0, cW, cH);
+            ctx.drawImage(img, dX, dY, dW, dH);
             updateScrubberUI(idx);
         }
 
-        // --- 4. SCRUBBER UI ---
-        const scrubberTicksContainer = document.getElementById('scrubber-ticks');
-        const frameNumEl = document.getElementById('frame-num');
-        const timecodeEl = document.getElementById('timecode');
-        const TICK_COUNT = 24;
-
-        for (let i = 0; i < TICK_COUNT; i++) {
-            const tick = document.createElement('div');
-            tick.classList.add('s-tick');
-            tick.addEventListener('click', () => {
-                targetProgress = i / (TICK_COUNT - 1);
-            });
-            scrubberTicksContainer.appendChild(tick);
-        }
-
-        function updateScrubberUI(idx) {
-            frameNumEl.textContent = String(idx + 1).padStart(2, '0');
-            const sec = ((idx / (TOTAL_FRAMES - 1)) * 5.09).toFixed(2);
-            timecodeEl.textContent = `00:${String(sec).padStart(5, '0')} / 05:09`;
-
-            const activeTickIndex = Math.floor((idx / (TOTAL_FRAMES - 1)) * (TICK_COUNT - 1));
-            const ticks = scrubberTicksContainer.children;
-            for (let t = 0; t < ticks.length; t++) {
-                if (t === activeTickIndex) ticks[t].classList.add('active');
-                else ticks[t].classList.remove('active');
-            }
-        }
-
-        // --- 5. SMOOTH MOUSE SCROLL & WHEEL INTERACTION ---
+        // --- 2. PURE SCROLL & MOUSE WHEEL DRIVEN PHYSICS ---
         // Global Page Scroll
         window.addEventListener('scroll', () => {
             const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -841,13 +783,13 @@
             }
         }, { passive: true });
 
-        // Mouse wheel directly stepping frames
+        // Direct Mouse Wheel anywhere on screen steps frames
         window.addEventListener('wheel', (e) => {
             const delta = e.deltaY;
-            targetProgress = Math.max(0, Math.min(1, targetProgress + (delta * 0.0008)));
+            targetProgress = Math.max(0, Math.min(1, targetProgress + (delta * 0.0007)));
         }, { passive: true });
 
-        // Keyboard arrow keys (Left/Right/Up/Down) for scrubbing
+        // Keyboard navigation (Arrow keys)
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                 targetProgress = Math.min(1, targetProgress + (1 / TOTAL_FRAMES));
@@ -856,37 +798,69 @@
             }
         });
 
-        // Horizontal Drag on Aperture
-        let isDragging = false;
-        let startX = 0;
-        const aperture = document.getElementById('aperture');
-        aperture.addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX; });
-        window.addEventListener('mouseup', () => { isDragging = false; });
-        window.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            const deltaX = e.clientX - startX;
-            startX = e.clientX;
-            targetProgress = Math.max(0, Math.min(1, targetProgress + (deltaX * 0.003)));
-        });
-
-        // Smooth physics loop (Lerp)
-        let lastFrame = -1;
+        // Smooth Lerp Momentum Loop
         function renderLoop() {
-            currentProgress += (targetProgress - currentProgress) * 0.18;
+            currentProgress += (targetProgress - currentProgress) * 0.16;
             const frameIdx = Math.round(currentProgress * (TOTAL_FRAMES - 1));
-            if (frameIdx !== lastFrame && isLoaded) {
+            if (frameIdx !== lastDrawnFrame && isLoaded) {
                 drawFrame(frameIdx);
-                lastFrame = frameIdx;
+                lastDrawnFrame = frameIdx;
             }
             requestAnimationFrame(renderLoop);
         }
         requestAnimationFrame(renderLoop);
 
+        // --- 3. SCRUBBER DOCK UI ---
+        const scrubberRow = document.getElementById('scrubber-ticks-row');
+        const frameEl = document.getElementById('cur-frame');
+        const timeEl = document.getElementById('cur-time');
+        const TICK_COUNT = 24;
+
+        for (let i = 0; i < TICK_COUNT; i++) {
+            const tick = document.createElement('div');
+            tick.classList.add('tick-line');
+            tick.addEventListener('click', () => {
+                targetProgress = i / (TICK_COUNT - 1);
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                window.scrollTo({ top: targetProgress * maxScroll, behavior: 'smooth' });
+            });
+            scrubberRow.appendChild(tick);
+        }
+
+        function updateScrubberUI(idx) {
+            frameEl.textContent = String(idx + 1).padStart(2, '0');
+            const sec = ((idx / (TOTAL_FRAMES - 1)) * 5.09).toFixed(2);
+            timeEl.textContent = `00:${String(sec).padStart(5, '0')} / 05:09`;
+
+            const activeTickIndex = Math.floor((idx / (TOTAL_FRAMES - 1)) * (TICK_COUNT - 1));
+            const ticks = scrubberRow.children;
+            for (let t = 0; t < ticks.length; t++) {
+                if (t === activeTickIndex) ticks[t].classList.add('active');
+                else ticks[t].classList.remove('active');
+            }
+        }
+
+        // --- 4. ANIME.JS RETICLE & HUD ANIMATIONS ---
+        anime({ targets: '.hud-arc-cyan', rotate: '1turn', duration: 18000, easing: 'linear', loop: true });
+        anime({ targets: '.hud-arc-pink', rotate: '-1turn', duration: 24000, easing: 'linear', loop: true });
+        anime({ targets: '.hud-arc-emerald', rotate: '1turn', duration: 30000, easing: 'linear', loop: true });
+        anime({ targets: '.hud-arc-purple', rotate: '-1turn', duration: 21000, easing: 'linear', loop: true });
+
+        anime({
+            targets: '.reticle-center',
+            scale: [1, 1.25],
+            opacity: [0.3, 0.75],
+            easing: 'easeInOutSine',
+            duration: 2400,
+            direction: 'alternate',
+            loop: true
+        });
+
         function scrollToBento() {
             document.getElementById('bento').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // --- 6. VOICE GREETING & PROTOCOL INITIALIZATION ---
+        // --- 5. VOICE & PROTOCOL INITIALIZATION ---
         function speak(text, callback) {
             const synth = window.speechSynthesis;
             if (!synth) { if (callback) callback(); return; }
@@ -902,19 +876,11 @@
         window.speechSynthesis.getVoices();
 
         function triggerWakeSequence() {
-            anime({
-                targets: '#bezel-svg',
-                rotate: '+=180deg',
-                scale: 1.06,
-                duration: 800,
-                easing: 'easeOutElastic(1, .7)'
-            });
-
             speak("Welcome Sir. Sovereign enclave locked. Awaiting cryptographic verification.", () => {
                 const modal = document.getElementById('vault-modal');
                 modal.style.display = 'flex';
                 anime({
-                    targets: '.vault-box',
+                    targets: '.vault-card',
                     scale: [0.85, 1],
                     opacity: [0, 1],
                     translateY: [30, 0],
@@ -926,7 +892,7 @@
             });
         }
 
-        // --- 7. CRYPTOGRAPHY ENGINE (PBKDF2 + AES-GCM + TOTP) ---
+        // --- 6. CRYPTOGRAPHY ENGINE (PBKDF2 + AES-GCM + TOTP) ---
         const ENCLAVE_CONFIG = { salt: "UkVYT05fRU5DTEFWRV8yNg==", iv: "U09WRVJFSUdOXzI2", seeds: ["KSd9/Hq19nm+yIPQTT6sRbgAfUJQEzdwRrMlnKYKIgQ=", "sk9pbxmq5deFYR29llvNJlpLnKgm6Btjdd3DpddA22E="] };
 
         function base32ToHex(base32) {
