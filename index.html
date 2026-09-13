@@ -55,8 +55,8 @@
             pointer-events: none;
             z-index: 2;
             background: 
-                radial-gradient(circle at 50% 50%, transparent 20%, rgba(3, 4, 7, 0.65) 65%, #030407 100%),
-                linear-gradient(180deg, rgba(3, 4, 7, 0.7) 0%, transparent 15%, transparent 80%, rgba(3, 4, 7, 0.95) 100%);
+                radial-gradient(circle at 50% 50%, transparent 35%, rgba(3, 4, 7, 0.35) 70%, rgba(3, 4, 7, 0.9) 100%),
+                linear-gradient(180deg, rgba(3, 4, 7, 0.6) 0%, transparent 15%, transparent 80%, rgba(3, 4, 7, 0.9) 100%);
         }
 
         .matrix-grid {
@@ -654,43 +654,93 @@
     </div>
 
     <script>
-        // --- 1. DUAL-VIDEO PRELOADING & RENDERING ENGINE ---
+        // --- 1. CORE DOM ELEMENTS & REFS ---
         const canvas = document.getElementById('dual-canvas');
         const ctx = canvas.getContext('2d');
-        const mFrames = []; // 96 Monolith frames
-        const hFrames = []; // 96 Hypercube frames
+        const stageEl = document.getElementById('scrubber-stage');
+        const timeEl = document.getElementById('scrubber-time');
+        const scrubberTicksRow = document.getElementById('scrubber-ticks-row');
+        const audioWelcome = document.getElementById('audio-welcome');
+        const audioVerified = document.getElementById('audio-verified');
+
+        // --- 2. PROGRESS & TIMELINE STATE ---
+        let targetProgress = 0;
+        let currentProgress = 0;
+        const TICK_COUNT = 24;
+
+        // Build Scrubber Ticks immediately so DOM is ready
+        if (scrubberTicksRow) {
+            for (let i = 0; i < TICK_COUNT; i++) {
+                const tick = document.createElement('div');
+                tick.classList.add('tick-line');
+                tick.addEventListener('click', () => {
+                    targetProgress = i / (TICK_COUNT - 1);
+                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                    window.scrollTo({ top: targetProgress * maxScroll, behavior: 'smooth' });
+                });
+                scrubberTicksRow.appendChild(tick);
+            }
+        }
+
+        // --- 3. SCRUBBER UI UPDATE ---
+        function updateScrubber(stageName, curFrame, totalFrames, curSec, totalSec) {
+            if (stageEl) {
+                stageEl.textContent = `${stageName} \u2022 F:${String(curFrame).padStart(2, '0')}/${totalFrames}`;
+            }
+            if (timeEl) {
+                timeEl.textContent = `00:${String(curSec).padStart(5, '0')} / ${totalSec}`;
+            }
+            if (scrubberTicksRow && scrubberTicksRow.children.length > 0) {
+                const activeIdx = Math.floor(currentProgress * (TICK_COUNT - 1));
+                const ticks = scrubberTicksRow.children;
+                for (let t = 0; t < ticks.length; t++) {
+                    if (t === activeIdx) ticks[t].classList.add('active');
+                    else ticks[t].classList.remove('active');
+                }
+            }
+        }
+
+        // --- 4. FRAME PRELOADING & RESILIENT FALLBACK ---
+        const mFrames = [];
+        const hFrames = [];
         let mLoadedCount = 0;
         let hLoadedCount = 0;
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            renderAtProgress(currentProgress);
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        // Preload Monolith frames
         for (let i = 1; i <= 96; i++) {
             const img = new Image();
             img.src = `frames/m_${String(i).padStart(4, '0')}.jpg`;
             img.onload = () => {
                 mLoadedCount++;
-                if (mLoadedCount === 1) renderAtProgress(0);
+                if (mLoadedCount === 1) renderAtProgress(currentProgress);
             };
             mFrames.push(img);
         }
 
-        // Preload Hypercube frames
         for (let i = 1; i <= 96; i++) {
             const img = new Image();
             img.src = `frames/h_${String(i).padStart(4, '0')}.jpg`;
-            img.onload = () => { hLoadedCount++; };
+            img.onload = () => {
+                hLoadedCount++;
+                if (hLoadedCount === 1 && currentProgress > 0.46) renderAtProgress(currentProgress);
+            };
             hFrames.push(img);
         }
 
+        function getLoadedFrame(frames, preferredIdx) {
+            if (frames[preferredIdx] && frames[preferredIdx].complete && frames[preferredIdx].naturalWidth > 0) {
+                return frames[preferredIdx];
+            }
+            for (let i = preferredIdx - 1; i >= 0; i--) {
+                if (frames[i] && frames[i].complete && frames[i].naturalWidth > 0) return frames[i];
+            }
+            for (let i = preferredIdx + 1; i < frames.length; i++) {
+                if (frames[i] && frames[i].complete && frames[i].naturalWidth > 0) return frames[i];
+            }
+            return null;
+        }
+
         function drawScaled(img, alpha = 1.0) {
-            if (!img || !img.complete) return;
+            if (!img || !img.complete || img.naturalWidth === 0) return;
             const cW = canvas.width, cH = canvas.height;
             const ratio = Math.max(cW / img.naturalWidth, cH / img.naturalHeight);
             const dW = img.naturalWidth * ratio;
@@ -703,39 +753,45 @@
             ctx.globalAlpha = 1.0;
         }
 
-        // --- 2. DUAL STAGE SEAMLESS TRANSITION ENGINE ---
-        // Progress p: 0.0 -> 1.0
-        // 0.00 .. 0.46: Stage 1 (Monolith 1..96)
-        // 0.46 .. 0.54: Smooth Crossfade Dissolve (Monolith 96 -> Hypercube 1)
-        // 0.54 .. 1.00: Stage 2 (Hypercube 1..96)
+        // --- 5. DUAL-STAGE SEAMLESS DISSOLVE ENGINE ---
         function renderAtProgress(p) {
+            p = Math.max(0, Math.min(1, p));
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (p < 0.46) {
-                // Pure Monolith
+                // Stage 1: Monolith (0.0s to 5.09s)
                 const norm = p / 0.46;
                 const idx = Math.min(95, Math.floor(norm * 95));
-                drawScaled(mFrames[idx]);
+                const frame = getLoadedFrame(mFrames, idx);
+                if (frame) drawScaled(frame);
                 updateScrubber('STAGE 01 // MONOLITH', idx + 1, 96, (norm * 5.09).toFixed(2), '05:09');
             } else if (p >= 0.46 && p <= 0.54) {
-                // Dissolve Transition Zone
+                // Seamless Dissolve Zone
                 const transProgress = (p - 0.46) / 0.08; // 0 to 1
-                drawScaled(mFrames[95], 1.0 - transProgress);
-                drawScaled(hFrames[0], transProgress);
+                const fM = getLoadedFrame(mFrames, 95);
+                const fH = getLoadedFrame(hFrames, 0);
+                if (fM) drawScaled(fM, 1.0 - transProgress);
+                if (fH) drawScaled(fH, transProgress);
                 updateScrubber('TRANSITION // WARP', Math.round(transProgress * 100), 100, (transProgress * 4.02).toFixed(2), '04:02');
             } else {
-                // Pure Hypercube
+                // Stage 2: Hypercube (0.0s to 4.02s)
                 const norm = (p - 0.54) / 0.46;
                 const idx = Math.min(95, Math.floor(norm * 95));
-                drawScaled(hFrames[idx]);
+                const frame = getLoadedFrame(hFrames, idx);
+                if (frame) drawScaled(frame);
                 updateScrubber('STAGE 02 // HYPERCUBE', idx + 1, 96, (norm * 4.02).toFixed(2), '04:02');
             }
         }
 
-        // --- 3. PURE SCROLL & MOUSE WHEEL PHYSICS (LERP) ---
-        let targetProgress = 0;
-        let currentProgress = 0;
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            renderAtProgress(currentProgress);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
+        // --- 6. SCROLL, MOUSE WHEEL & TOUCH INTERACTION ---
         window.addEventListener('scroll', () => {
             const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             if (maxScroll > 0) {
@@ -747,6 +803,18 @@
             targetProgress = Math.max(0, Math.min(1, targetProgress + (e.deltaY * 0.00065)));
         }, { passive: true });
 
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                const deltaY = touchStartY - e.touches[0].clientY;
+                touchStartY = e.touches[0].clientY;
+                targetProgress = Math.max(0, Math.min(1, targetProgress + (deltaY * 0.0012)));
+            }
+        }, { passive: true });
+
         function animLoop() {
             currentProgress += (targetProgress - currentProgress) * 0.16;
             renderAtProgress(currentProgress);
@@ -754,53 +822,26 @@
         }
         requestAnimationFrame(animLoop);
 
-        // --- 4. SCRUBBER DOCK UI ---
-        const scrubberTicksRow = document.getElementById('scrubber-ticks-row');
-        const stageEl = document.getElementById('scrubber-stage');
-        const timeEl = document.getElementById('scrubber-time');
-        const TICK_COUNT = 24;
-
-        for (let i = 0; i < TICK_COUNT; i++) {
-            const tick = document.createElement('div');
-            tick.classList.add('tick-line');
-            tick.addEventListener('click', () => {
-                targetProgress = i / (TICK_COUNT - 1);
-                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-                window.scrollTo({ top: targetProgress * maxScroll, behavior: 'smooth' });
+        // --- 7. ANIME.JS RETICLE & NAVIGATION ---
+        if (typeof anime !== 'undefined') {
+            anime({ targets: '.arc-cyan', rotate: '1turn', duration: 18000, easing: 'linear', loop: true });
+            anime({ targets: '.arc-pink', rotate: '-1turn', duration: 24000, easing: 'linear', loop: true });
+            anime({ targets: '.arc-emerald', rotate: '1turn', duration: 30000, easing: 'linear', loop: true });
+            anime({ targets: '.arc-purple', rotate: '-1turn', duration: 21000, easing: 'linear', loop: true });
+            anime({
+                targets: '.reticle-pulse',
+                scale: [1, 1.25],
+                opacity: [0.3, 0.8],
+                easing: 'easeInOutSine',
+                duration: 2200,
+                direction: 'alternate',
+                loop: true
             });
-            scrubberTicksRow.appendChild(tick);
         }
-
-        function updateScrubber(stageName, curFrame, totalFrames, curSec, totalSec) {
-            stageEl.textContent = `${stageName} &bull; F:${String(curFrame).padStart(2, '0')}/${totalFrames}`;
-            timeEl.textContent = `00:${String(curSec).padStart(5, '0')} / ${totalSec}`;
-
-            const activeIdx = Math.floor(currentProgress * (TICK_COUNT - 1));
-            const ticks = scrubberTicksRow.children;
-            for (let t = 0; t < ticks.length; t++) {
-                if (t === activeIdx) ticks[t].classList.add('active');
-                else ticks[t].classList.remove('active');
-            }
-        }
-
-        // --- 5. ANIME.JS HUD ROTATION ---
-        anime({ targets: '.arc-cyan', rotate: '1turn', duration: 18000, easing: 'linear', loop: true });
-        anime({ targets: '.arc-pink', rotate: '-1turn', duration: 24000, easing: 'linear', loop: true });
-        anime({ targets: '.arc-emerald', rotate: '1turn', duration: 30000, easing: 'linear', loop: true });
-        anime({ targets: '.arc-purple', rotate: '-1turn', duration: 21000, easing: 'linear', loop: true });
-
-        anime({
-            targets: '.reticle-pulse',
-            scale: [1, 1.25],
-            opacity: [0.3, 0.8],
-            easing: 'easeInOutSine',
-            duration: 2200,
-            direction: 'alternate',
-            loop: true
-        });
 
         function scrollToNarrative() {
-            document.getElementById('narrative').scrollIntoView({ behavior: 'smooth' });
+            const el = document.getElementById('narrative');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
         }
 
         function returnToGatewayAndInit() {
@@ -810,30 +851,33 @@
             }, 800);
         }
 
-        // --- 6. HIGH-FIDELITY ANDREW NEURAL VOICE & PROTOCOL INITIALIZATION ---
-        const audioWelcome = document.getElementById('audio-welcome');
-        const audioVerified = document.getElementById('audio-verified');
-
+        // --- 8. VOICE & MODAL PROTOCOL ---
         function triggerWakeSequence() {
-            // Play crystal-clear Edge TTS Andrew Multilingual Neural Voice
-            audioWelcome.currentTime = 0;
-            audioWelcome.play().catch(e => { console.log('Audio autoplay prevented:', e); });
+            if (audioWelcome) {
+                audioWelcome.currentTime = 0;
+                audioWelcome.play().catch(e => { console.log('Audio playback notice:', e); });
+            }
 
             const modal = document.getElementById('vault-modal');
-            modal.style.display = 'flex';
-            anime({
-                targets: '.vault-card',
-                scale: [0.85, 1],
-                opacity: [0, 1],
-                translateY: [30, 0],
-                duration: 600,
-                easing: 'easeOutExpo'
-            });
-            setTimeout(() => modal.style.opacity = '1', 50);
-            document.getElementById('vault-pass').focus();
+            if (modal) {
+                modal.style.display = 'flex';
+                if (typeof anime !== 'undefined') {
+                    anime({
+                        targets: '.vault-card',
+                        scale: [0.85, 1],
+                        opacity: [0, 1],
+                        translateY: [30, 0],
+                        duration: 600,
+                        easing: 'easeOutExpo'
+                    });
+                }
+                setTimeout(() => modal.style.opacity = '1', 50);
+                const passInput = document.getElementById('vault-pass');
+                if (passInput) passInput.focus();
+            }
         }
 
-        // --- 7. CRYPTOGRAPHY ENGINE (PBKDF2 + AES-GCM + TOTP) ---
+        // --- 9. CRYPTOGRAPHY ENGINE (PBKDF2 + AES-GCM + TOTP) ---
         const ENCLAVE_CONFIG = { salt: "UkVYT05fRU5DTEFWRV8yNg==", iv: "U09WRVJFSUdOXzI2", seeds: ["KSd9/Hq19nm+yIPQTT6sRbgAfUJQEzdwRrMlnKYKIgQ=", "sk9pbxmq5deFYR29llvNJlpLnKgm6Btjdd3DpddA22E="] };
 
         function base32ToHex(base32) {
@@ -900,15 +944,17 @@
                 ]);
                 if (!validCodes.includes(otp)) throw new Error("TOTP Mismatch");
 
-                // Play Verified Audio
-                audioVerified.currentTime = 0;
-                audioVerified.play().catch(e => {});
+                if (audioVerified) {
+                    audioVerified.currentTime = 0;
+                    audioVerified.play().catch(e => {});
+                }
 
-                // Decryption Success
                 document.getElementById('vault-modal').style.display = 'none';
                 const deck = document.getElementById('decrypted-workspace');
                 deck.style.display = 'block';
-                anime({ targets: '#decrypted-workspace', opacity: [0, 1], duration: 800, easing: 'easeOutQuad' });
+                if (typeof anime !== 'undefined') {
+                    anime({ targets: '#decrypted-workspace', opacity: [0, 1], duration: 800, easing: 'easeOutQuad' });
+                }
 
                 const saved = localStorage.getItem("rexon_stash");
                 if (saved) document.getElementById("stash-notes").value = decodeURIComponent(escape(atob(saved)));
