@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REXON // Autonomous Intelligence</title>
     <meta name="theme-color" content="#030407">
+    <!-- Instant Anchor Frame Preload for Zero-Black First Paint -->
+    <link rel="preload" as="image" href="frames/h_0001.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="frames/m_0001.jpg">
+
 
     <!-- Fonts: Syne (Display), Inter (Body), Fira Code (Telemetry/Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,8 +59,8 @@
             pointer-events: none;
             z-index: 2;
             background: 
-                radial-gradient(circle at 50% 50%, transparent 35%, rgba(3, 4, 7, 0.35) 70%, rgba(3, 4, 7, 0.9) 100%),
-                linear-gradient(180deg, rgba(3, 4, 7, 0.6) 0%, transparent 15%, transparent 80%, rgba(3, 4, 7, 0.9) 100%);
+                radial-gradient(circle at 50% 50%, transparent 40%, rgba(3, 4, 7, 0.25) 75%, rgba(3, 4, 7, 0.75) 100%),
+                linear-gradient(180deg, rgba(3, 4, 7, 0.4) 0%, transparent 15%, transparent 85%, rgba(3, 4, 7, 0.6) 100%);
         }
 
         .matrix-grid {
@@ -646,55 +650,83 @@
     <script>
         // --- 1. CORE DOM REFS ---
         const canvas = document.getElementById('dual-canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { alpha: false }); // High performance non-alpha context
         const audioWelcome = document.getElementById('audio-welcome');
         const audioVerified = document.getElementById('audio-verified');
 
-        // --- 2. PROGRESS STATE ---
+        // --- 2. PROGRESS STATE & PERSISTENT FRAME BUFFER ---
         let targetProgress = 0;
         let currentProgress = 0;
+        let lastRenderedImg = null;
 
         // --- 3. DUAL-STAGE FRAME ENGINE (STAGE 1: HYPERCUBE [TOP], STAGE 2: MONOLITH [BOTTOM]) ---
-        const hFrames = []; // 96 Obsidian Hypercube frames (Top / Hero)
-        const mFrames = []; // 96 Crystalline Monolith frames (Bottom / Narrative)
+        const hFrames = new Array(96);
+        const mFrames = new Array(96);
         let hLoadedCount = 0;
         let mLoadedCount = 0;
 
-        // Instant anchor frames preloader
-        ['frames/h_0001.jpg', 'frames/m_0001.jpg'].forEach(src => {
-            const p = new Image();
-            p.src = src;
-        });
-
-        // Preload Stage 1: Obsidian Hypercube (Top)
-        for (let i = 1; i <= 96; i++) {
+        function makeFrame(src, onLoadCb) {
             const img = new Image();
-            img.src = `frames/h_${String(i).padStart(4, '0')}.jpg`;
+            img.decoding = 'async';
+            img.src = src;
             img.onload = () => {
-                hLoadedCount++;
-                if (hLoadedCount === 1) renderAtProgress(currentProgress);
+                if (onLoadCb) onLoadCb(img);
             };
-            hFrames.push(img);
+            return img;
         }
 
-        // Preload Stage 2: Crystalline Monolith (Bottom)
-        for (let i = 1; i <= 96; i++) {
-            const img = new Image();
-            img.src = `frames/m_${String(i).padStart(4, '0')}.jpg`;
-            img.onload = () => {
-                mLoadedCount++;
-                if (mLoadedCount === 1 && currentProgress > 0.46) renderAtProgress(currentProgress);
-            };
-            mFrames.push(img);
+        // --- TIER 1: INSTANT CRITICAL ANCHORS ---
+        hFrames[0] = makeFrame('frames/h_0001.jpg', (img) => {
+            hLoadedCount++;
+            if (!lastRenderedImg) {
+                lastRenderedImg = img;
+                renderAtProgress(currentProgress);
+            }
+        });
+        hFrames[95] = makeFrame('frames/h_0096.jpg', () => { hLoadedCount++; });
+        mFrames[0] = makeFrame('frames/m_0001.jpg', () => { mLoadedCount++; });
+        mFrames[95] = makeFrame('frames/m_0096.jpg', () => { mLoadedCount++; });
+
+        // --- TIER 2 & 3: PROGRESSIVE PIPELINE PRELOAD ---
+        function loadRemainingFrames() {
+            // Decimator keyframes first (every 8 frames)
+            for (let i = 1; i <= 96; i++) {
+                const idx = i - 1;
+                if (!hFrames[idx] && (i % 8 === 0)) {
+                    hFrames[idx] = makeFrame(`frames/h_${String(i).padStart(4, '0')}.jpg`, () => { hLoadedCount++; });
+                }
+                if (!mFrames[idx] && (i % 8 === 0)) {
+                    mFrames[idx] = makeFrame(`frames/m_${String(i).padStart(4, '0')}.jpg`, () => { mLoadedCount++; });
+                }
+            }
+            // All remaining intermediate frames
+            for (let i = 1; i <= 96; i++) {
+                const idx = i - 1;
+                if (!hFrames[idx]) {
+                    hFrames[idx] = makeFrame(`frames/h_${String(i).padStart(4, '0')}.jpg`, () => { hLoadedCount++; });
+                }
+                if (!mFrames[idx]) {
+                    mFrames[idx] = makeFrame(`frames/m_${String(i).padStart(4, '0')}.jpg`, () => { mLoadedCount++; });
+                }
+            }
+        }
+
+        // Start loading rest after first paint
+        if (window.requestIdleCallback) {
+            requestIdleCallback(() => loadRemainingFrames(), { timeout: 1000 });
+        } else {
+            setTimeout(loadRemainingFrames, 150);
         }
 
         function getLoadedFrame(frames, preferredIdx) {
             if (frames[preferredIdx] && frames[preferredIdx].complete && frames[preferredIdx].naturalWidth > 0) {
                 return frames[preferredIdx];
             }
+            // Search backward
             for (let i = preferredIdx - 1; i >= 0; i--) {
                 if (frames[i] && frames[i].complete && frames[i].naturalWidth > 0) return frames[i];
             }
+            // Search forward
             for (let i = preferredIdx + 1; i < frames.length; i++) {
                 if (frames[i] && frames[i].complete && frames[i].naturalWidth > 0) return frames[i];
             }
@@ -705,50 +737,50 @@
             if (!img || !img.complete || img.naturalWidth === 0) return;
             const cW = canvas.width, cH = canvas.height;
             const ratio = Math.max(cW / img.naturalWidth, cH / img.naturalHeight);
-            const dW = img.naturalWidth * ratio;
-            const dH = img.naturalHeight * ratio;
-            const dX = (cW - dW) / 2;
-            const dY = (cH - dH) / 2;
+            const dW = Math.ceil(img.naturalWidth * ratio);
+            const dH = Math.ceil(img.naturalHeight * ratio);
+            const dX = Math.floor((cW - dW) / 2);
+            const dY = Math.floor((cH - dH) / 2);
 
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
             ctx.globalAlpha = alpha;
             ctx.drawImage(img, dX, dY, dW, dH);
             ctx.globalAlpha = 1.0;
+            lastRenderedImg = img;
         }
 
-        // --- 4. DUAL-STAGE RENDER (HYPERCUBE TOP -> MONOLITH BOTTOM) ---
+        // --- 4. BULLETPROOF ZERO-BLACK DUAL-STAGE RENDER ENGINE ---
         function renderAtProgress(p) {
             p = Math.max(0, Math.min(1, p));
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (p < 0.46) {
-                // Stage 1: Obsidian Hypercube (0.0s to 4.02s)
-                const norm = p / 0.46;
+            if (p < 0.44) {
+                // Stage 1: Obsidian Hypercube (Top / Hero)
+                const norm = p / 0.44;
                 const idx = Math.min(95, Math.floor(norm * 95));
-                const frame = getLoadedFrame(hFrames, idx) || getLoadedFrame(mFrames, 0);
-                if (frame) drawScaled(frame);
-            } else if (p >= 0.46 && p <= 0.54) {
-                // Seamless Crossfade Dissolve (Hypercube 96 -> Monolith 1)
-                const transProgress = (p - 0.46) / 0.08;
-                const fH = getLoadedFrame(hFrames, 95);
-                const fM = getLoadedFrame(mFrames, 0) || fH;
-                if (fH && fM && fH !== fM) {
-                    drawScaled(fH, 1.0 - transProgress);
-                    drawScaled(fM, transProgress);
-                } else if (fM) {
-                    drawScaled(fM);
+                const frame = getLoadedFrame(hFrames, idx) || lastRenderedImg || hFrames[0] || mFrames[0];
+                if (frame) drawScaled(frame, 1.0);
+            } else if (p >= 0.44 && p <= 0.56) {
+                // Seamless Zero-Black Dissolve:
+                // Base is ALWAYS 100% solid Stage 1 End Frame (or lastRenderedImg)
+                const transProgress = (p - 0.44) / 0.12;
+                const fH = getLoadedFrame(hFrames, 95) || lastRenderedImg || hFrames[0];
+                if (fH) drawScaled(fH, 1.0); // Solid opaque base prevents any black background bleed
+
+                const fM = getLoadedFrame(mFrames, 0);
+                if (fM) {
+                    drawScaled(fM, transProgress); // Fade incoming stage smoothly on top
                 }
             } else {
-                // Stage 2: Crystalline Monolith (0.0s to 5.09s)
-                const norm = (p - 0.54) / 0.46;
+                // Stage 2: Crystalline Monolith (Bottom / Narrative)
+                const norm = (p - 0.56) / 0.44;
                 const idx = Math.min(95, Math.floor(norm * 95));
-                const frame = getLoadedFrame(mFrames, idx) || getLoadedFrame(hFrames, 95);
-                if (frame) drawScaled(frame);
+                const frame = getLoadedFrame(mFrames, idx) || lastRenderedImg || mFrames[0] || hFrames[95];
+                if (frame) drawScaled(frame, 1.0);
             }
         }
 
-        // --- 5. HIGH-DPI CANVAS RESIZING (RETINA / 4K / WINDOWS SCALING FIX) ---
+        // --- 5. HIGH-DPI CANVAS RESIZING ---
         function resizeCanvas() {
             const dpr = Math.min(window.devicePixelRatio || 1, 2);
             canvas.width = Math.floor(window.innerWidth * dpr);
@@ -758,7 +790,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // --- 6. WHEEL, SCROLL & TOUCH SCRUBBING ---
+        // --- 6. SCROLL SCRUBBING WITH SMOOTH LERP ---
         window.addEventListener('scroll', () => {
             const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             if (maxScroll > 0) {
@@ -766,28 +798,20 @@
             }
         }, { passive: true });
 
-        window.addEventListener('wheel', (e) => {
-            targetProgress = Math.max(0, Math.min(1, targetProgress + (e.deltaY * 0.00065)));
-        }, { passive: true });
-
-        let touchStartY = 0;
-        window.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 0) touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-        window.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 0) {
-                const deltaY = touchStartY - e.touches[0].clientY;
-                touchStartY = e.touches[0].clientY;
-                targetProgress = Math.max(0, Math.min(1, targetProgress + (deltaY * 0.0012)));
-            }
-        }, { passive: true });
-
         function animLoop() {
-            currentProgress += (targetProgress - currentProgress) * 0.16;
-            renderAtProgress(currentProgress);
+            const diff = targetProgress - currentProgress;
+            if (Math.abs(diff) > 0.0001) {
+                currentProgress += diff * 0.18;
+                renderAtProgress(currentProgress);
+            }
             requestAnimationFrame(animLoop);
         }
         requestAnimationFrame(animLoop);
+
+        // Immediate first paint if h_0001 already in cache
+        if (hFrames[0] && hFrames[0].complete && hFrames[0].naturalWidth > 0) {
+            renderAtProgress(0);
+        }
 
         // --- 7. RETICLE & NAVIGATION ---
         if (typeof anime !== 'undefined') {
