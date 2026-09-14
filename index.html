@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>REXON // Autonomous Intelligence</title>
     <meta name="theme-color" content="#030407">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Instant Anchor Frame Preload for Zero-Black First Paint -->
     <link rel="preload" as="image" href="frames/h_0001.jpg" fetchpriority="high">
     <link rel="preload" as="image" href="frames/m_0001.jpg">
@@ -639,11 +641,250 @@
         }
         .cmd-box:hover { border-color: var(--cyan); box-shadow: 0 0 30px rgba(0, 243, 255, 0.25); transform: translateY(-3px); }
 
+        /* Remote Bridge Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .rexon-toast {
+            pointer-events: auto;
+            background: rgba(10, 15, 26, 0.95);
+            border: 1px solid rgba(0, 243, 255, 0.4);
+            border-radius: 8px;
+            padding: 12px 18px;
+            color: #ffffff;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 243, 255, 0.2);
+            backdrop-filter: blur(16px);
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 380px;
+        }
+        .rexon-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .rexon-toast.toast-success { border-color: rgba(0, 255, 102, 0.6); box-shadow: 0 0 20px rgba(0, 255, 102, 0.25); }
+        .rexon-toast.toast-error { border-color: rgba(255, 77, 109, 0.7); box-shadow: 0 0 20px rgba(255, 77, 109, 0.35); }
+
+        .nav-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(0, 255, 102, 0.08);
+            border: 1px solid rgba(0, 255, 102, 0.25);
+            transition: all 0.2s ease;
+        }
+        .nav-chip:hover {
+            border-color: var(--cyan);
+            background: rgba(0, 243, 255, 0.12);
+        }
+
         @media (max-width: 980px) {
             .hero-section { flex-direction: column; text-align: center; padding-top: 110px; }
             .hero-copy { margin-bottom: 50px; }
             .btn-row { justify-content: center; }
             .scrubber-dock { right: 50%; transform: translateX(50%); bottom: 20px; }
+        }
+
+        /* PHONE & SMALL MOBILE DEVICE OPTIMIZATION (iPhone 390px & Android 412px) */
+        @media (max-width: 768px) {
+            header {
+                padding: 12px 16px;
+                backdrop-filter: blur(18px);
+                -webkit-backdrop-filter: blur(18px);
+            }
+            .brand-box {
+                font-size: 1.05rem;
+                letter-spacing: 2px;
+                gap: 8px;
+            }
+            .brand-badge {
+                font-size: 0.55rem;
+                padding: 2px 6px;
+                letter-spacing: 1px;
+            }
+            .nav-meta {
+                gap: 8px;
+                font-size: 0.7rem;
+            }
+            .nav-chip {
+                padding: 3px 8px;
+                gap: 6px;
+            }
+
+            /* Touch Friendly Smooth Scroll Track */
+            .scroll-wrapper {
+                height: 420vh;
+            }
+
+            /* Mobile Hero Stage */
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 105px 20px 40px;
+                min-height: 86vh;
+            }
+            .hero-copy {
+                max-width: 100%;
+                margin-bottom: 24px;
+            }
+            .hero-title {
+                font-size: clamp(2.35rem, 11vw, 3.1rem);
+                margin-bottom: 12px;
+                line-height: 1.12;
+            }
+            .hero-desc {
+                font-size: 0.88rem;
+                line-height: 1.6;
+                max-width: 320px;
+                margin: 0 auto 24px;
+                color: #d2e1f2;
+            }
+            .btn-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+            }
+            .btn-primary, .btn-ghost {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 13px 20px;
+                font-size: 0.78rem;
+                border-radius: 8px;
+            }
+
+            /* Mobile Narrative Stage */
+            .narrative-section {
+                padding: 50px 16px 70px;
+            }
+            .narrative-header {
+                padding: 16px 18px 14px;
+                margin: 0 auto 20px;
+                border-radius: 20px;
+                background: radial-gradient(ellipse at center, rgba(3, 5, 10, 0.9) 0%, rgba(3, 5, 10, 0.6) 80%, transparent 100%);
+            }
+            .narrative-badge {
+                padding: 4px 12px;
+                margin-bottom: 10px;
+            }
+            .badge-text {
+                font-size: 0.62rem;
+                letter-spacing: 2px;
+            }
+            .narrative-title {
+                font-size: clamp(1.65rem, 6.5vw, 2.1rem);
+                margin-bottom: 8px;
+            }
+            .narrative-subtitle {
+                font-size: 0.85rem;
+                line-height: 1.5;
+            }
+            .narrative-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .narrative-card {
+                padding: 20px 18px 18px;
+                border-radius: 16px;
+                background: linear-gradient(160deg, rgba(8, 13, 24, 0.74) 0%, rgba(2, 4, 10, 0.86) 100%);
+                box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.85), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+            }
+            .card-meta-row {
+                margin-bottom: 14px;
+            }
+            .card-pill {
+                font-size: 0.64rem;
+                padding: 3px 8px;
+                letter-spacing: 1px;
+            }
+            .card-index {
+                font-size: 0.64rem;
+            }
+            .card-heading {
+                font-size: 1.18rem;
+                margin-bottom: 10px;
+                line-height: 1.3;
+            }
+            .card-body {
+                font-size: 0.86rem;
+                line-height: 1.62;
+                color: rgba(210, 224, 242, 0.84);
+            }
+            .card-footer {
+                margin-top: 18px;
+                padding-top: 12px;
+                font-size: 0.62rem;
+            }
+
+            /* Bottom CTA Box */
+            .bottom-cta-box {
+                margin-top: 36px;
+                padding: 10px;
+            }
+            .btn-gateway {
+                width: 100%;
+                max-width: 320px;
+                padding: 14px 20px;
+                font-size: 0.74rem;
+                justify-content: center;
+                letter-spacing: 1px;
+            }
+
+            /* Hide Scrubber Dock on Mobile to Free Canvas Area */
+            .scrubber-dock {
+                display: none !important;
+            }
+
+            /* Mobile Vault Modal */
+            .vault-card {
+                padding: 28px 20px;
+                max-width: 95%;
+            }
+            .vault-headline {
+                font-size: 1.5rem;
+            }
+            .secure-input {
+                font-size: 16px !important; /* Prevents auto-zoom in iOS Safari */
+                padding: 12px 14px;
+            }
+
+            /* Mobile Root Workspace */
+            #decrypted-workspace {
+                padding: 24px 16px 60px;
+            }
+            .deck-topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+            .deck-topbar h2 {
+                font-size: 1.5rem !important;
+            }
+            .cmd-deck-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+            .cmd-box {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -665,14 +906,17 @@
             <div class="brand-badge">INTELLIGENCE</div>
         </div>
         <div class="nav-meta">
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="nav-chip" id="nav-bridge-chip" onclick="showBridgeStatusInfo()" style="cursor: pointer;">
                 <div class="live-dot"></div>
-                <span>PORT 8080 ACTIVE</span>
+                <span id="nav-bridge-label">PORT 8080 ACTIVE</span>
             </div>
             <span style="opacity: 0.25;">|</span>
-            <span style="letter-spacing: 2px;">UNKNXWC</span>
+            <span style="letter-spacing: 2px; font-weight: 600;">UNKNXWC</span>
         </div>
     </header>
+
+    <!-- Dynamic Toast Container for Remote IPC Commands -->
+    <div class="toast-container" id="toast-container"></div>
 
     <!-- Scroll Track Wrapper (500vh) -->
     <div class="scroll-wrapper">
@@ -685,7 +929,7 @@
                     <span class="gradient-text">Rexon.</span>
                 </h1>
                 <p class="hero-desc">
-                    An autonomous intelligence crafted by UNKNXWC. Scroll your mouse wheel to explore the obsidian hypercube and journey into the crystalline core.
+                    An autonomous intelligence crafted by UNKNXWC. Swipe or scroll to explore the obsidian hypercube and journey into the crystalline core.
                 </p>
                 <div class="btn-row">
                     <button class="btn-primary" id="btn-init" onclick="triggerWakeSequence()">
@@ -816,15 +1060,35 @@
         <div class="deck-topbar">
             <div>
                 <h2 style="font-family: 'Syne', sans-serif; font-size: 2rem;">UNKNXWC COMMAND CORE</h2>
-                <div style="color: var(--cyan); font-family: 'Fira Code'; font-size: 0.8rem; margin-top: 5px;">Root Access Verified. IPC Bridge Active on Port 8080.</div>
+                <div id="deck-bridge-status-text" style="color: var(--cyan); font-family: 'Fira Code'; font-size: 0.8rem; margin-top: 5px;">Root Access Verified. Detecting Worldwide IPC Bridge...</div>
             </div>
             <button class="btn-ghost" style="border-color: var(--pink); color: var(--pink);" onclick="location.reload()">LOCKDOWN</button>
+        </div>
+
+        <!-- Worldwide Bridge IPC Gateway Nexus -->
+        <div style="background: rgba(12, 16, 26, 0.85); border: 1px solid var(--card-border); border-radius: 14px; padding: 22px; margin-bottom: 28px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="font-family: 'Syne'; font-size: 1.15rem; display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan);"></span>
+                    WORLDWIDE PC BRIDGE GATEWAY
+                </h3>
+                <span id="bridge-status-pill" style="font-family: 'Fira Code'; font-size: 0.72rem; padding: 4px 12px; border-radius: 999px; background: rgba(0, 243, 255, 0.1); color: var(--cyan); border: 1px solid rgba(0, 243, 255, 0.3);">CHECKING...</span>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+                Commands are dispatched across the secure Cloudflare Tunnel or local host port 8080. Access your workstation from anywhere worldwide.
+            </p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="bridge-url-input" class="secure-input" placeholder="https://*.trycloudflare.com or http://localhost:8080" style="flex: 1; min-width: 240px; padding: 10px 14px; font-size: 0.84rem;">
+                <button class="btn-primary" style="padding: 10px 18px; font-size: 0.76rem;" onclick="saveCustomBridge()">APPLY ENDPOINT</button>
+                <button class="btn-ghost" style="padding: 10px 16px; font-size: 0.76rem;" onclick="resetBridgeEndpoint()">AUTO-DETECT</button>
+                <button class="btn-ghost" style="padding: 10px 16px; font-size: 0.76rem; border-color: var(--cyan); color: var(--cyan);" onclick="checkBridgeHealth(true)">TEST PING</button>
+            </div>
         </div>
 
         <div class="cmd-deck-grid">
             <div class="cmd-box" onclick="dispatchCmd('LOCK_PC')">
                 <h3 style="margin-bottom: 8px; font-family: 'Syne'; font-size: 1.2rem;">LOCK WORKSTATION</h3>
-                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Trigger Win32 Desktop Lock via Port 8080</p>
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">Trigger Win32 Desktop Lock via active bridge</p>
             </div>
             <div class="cmd-box" onclick="dispatchCmd('TAKE_SCREENSHOT')">
                 <h3 style="margin-bottom: 8px; font-family: 'Syne'; font-size: 1.2rem;">CAPTURE SCREEN</h3>
@@ -1345,17 +1609,195 @@
         function saveStashNotes() {
             const val = document.getElementById("stash-notes").value;
             localStorage.setItem("rexon_stash", btoa(unescape(encodeURIComponent(val))));
+            showCmdToast("STASH DIRECTIVES SAVED ENCRYPTED", "success");
+        }
+
+        // --- 10. WORLDWIDE AUTONOMOUS IPC BRIDGE ENGINE ---
+        let bridgeBaseUrl = "http://localhost:8080";
+        let isBridgeOnline = false;
+
+        function showCmdToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `rexon-toast toast-${type}`;
+            const dotColor = type === "success" ? "var(--emerald)" : (type === "error" ? "var(--pink)" : "var(--cyan)");
+            toast.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 8px ${dotColor}; flex-shrink: 0;"></span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 20);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 350);
+            }, 3200);
+        }
+
+        async function initBridgeEndpoint() {
+            // 1. Check custom override in localStorage
+            const custom = localStorage.getItem("rexon_custom_bridge");
+            if (custom && custom.trim().startsWith("http")) {
+                bridgeBaseUrl = custom.trim().replace(/\/+$/, '');
+                await checkBridgeHealth(false);
+                return;
+            }
+
+            // 2. Fetch active Cloudflare tunnel from bridge_endpoint.txt
+            try {
+                const res = await fetch("bridge_endpoint.txt?t=" + Date.now());
+                if (res.ok) {
+                    const txt = (await res.text()).trim();
+                    if (txt.startsWith("http")) {
+                        bridgeBaseUrl = txt.replace(/\/+$/, '');
+                        localStorage.setItem("rexon_cached_bridge", bridgeBaseUrl);
+                        await checkBridgeHealth(false);
+                        return;
+                    }
+                }
+            } catch(e) {
+                console.log("Remote endpoint fetch notice:", e);
+            }
+
+            // 3. Check cached tunnel or localhost
+            const cached = localStorage.getItem("rexon_cached_bridge");
+            if (cached && cached.trim().startsWith("http")) {
+                bridgeBaseUrl = cached.trim().replace(/\/+$/, '');
+            } else if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+                bridgeBaseUrl = "http://localhost:8080";
+            }
+            await checkBridgeHealth(false);
+        }
+
+        async function checkBridgeHealth(isUserTriggered = false) {
+            const labelEl = document.getElementById("nav-bridge-label");
+            const dotEl = document.querySelector(".live-dot");
+            const pillEl = document.getElementById("bridge-status-pill");
+            const inputEl = document.getElementById("bridge-url-input");
+            const deckText = document.getElementById("deck-bridge-status-text");
+
+            if (inputEl) inputEl.value = bridgeBaseUrl;
+            if (pillEl) {
+                pillEl.textContent = "PINGING...";
+                pillEl.style.color = "var(--cyan)";
+                pillEl.style.borderColor = "rgba(0, 243, 255, 0.4)";
+            }
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const res = await fetch(`${bridgeBaseUrl}/api/v1/ping`, {
+                    method: "GET",
+                    mode: "cors",
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    isBridgeOnline = true;
+                    const isTunnel = bridgeBaseUrl.includes("trycloudflare.com");
+                    
+                    if (labelEl) {
+                        labelEl.textContent = window.innerWidth <= 768 ? "ONLINE" : (isTunnel ? "GLOBAL BRIDGE ACTIVE" : "PORT 8080 ACTIVE");
+                    }
+                    if (dotEl) {
+                        dotEl.style.background = "var(--emerald)";
+                        dotEl.style.boxShadow = "0 0 10px var(--emerald)";
+                    }
+                    if (pillEl) {
+                        pillEl.textContent = isTunnel ? "WORLDWIDE ONLINE" : "LOCAL 8080 ONLINE";
+                        pillEl.style.color = "var(--emerald)";
+                        pillEl.style.borderColor = "rgba(0, 255, 102, 0.4)";
+                        pillEl.style.background = "rgba(0, 255, 102, 0.08)";
+                    }
+                    if (deckText) {
+                        deckText.textContent = `Root Verified. ${isTunnel ? 'Worldwide Cloudflare Tunnel' : 'Local Workstation'} Bridge Online.`;
+                    }
+                    if (isUserTriggered) {
+                        showCmdToast(`BRIDGE ONLINE: ${data.system || 'Connected'} (${res.status} OK)`, "success");
+                    }
+                    return;
+                }
+            } catch(e) {
+                console.log("Ping error:", e);
+            }
+
+            isBridgeOnline = false;
+            if (labelEl) {
+                labelEl.textContent = window.innerWidth <= 768 ? "STANDBY" : "BRIDGE STANDBY";
+            }
+            if (dotEl) {
+                dotEl.style.background = "#ffaa00";
+                dotEl.style.boxShadow = "0 0 10px #ffaa00";
+            }
+            if (pillEl) {
+                pillEl.textContent = "OFFLINE / STANDBY";
+                pillEl.style.color = "#ffaa00";
+                pillEl.style.borderColor = "rgba(255, 170, 0, 0.4)";
+                pillEl.style.background = "rgba(255, 170, 0, 0.08)";
+            }
+            if (deckText) {
+                deckText.textContent = `Bridge Standby. Launch START_WORLDWIDE_BRIDGE.bat on workstation or update URL.`;
+            }
+            if (isUserTriggered) {
+                showCmdToast(`BRIDGE OFFLINE: Unable to reach ${bridgeBaseUrl}`, "error");
+            }
+        }
+
+        function saveCustomBridge() {
+            const inputEl = document.getElementById("bridge-url-input");
+            if (!inputEl) return;
+            const val = inputEl.value.trim().replace(/\/+$/, '');
+            if (!val.startsWith("http")) {
+                showCmdToast("INVALID URL: Must start with http:// or https://", "error");
+                return;
+            }
+            bridgeBaseUrl = val;
+            localStorage.setItem("rexon_custom_bridge", val);
+            showCmdToast("ENDPOINT SAVED. TESTING CONNECTION...", "info");
+            checkBridgeHealth(true);
+        }
+
+        function resetBridgeEndpoint() {
+            localStorage.removeItem("rexon_custom_bridge");
+            showCmdToast("RESETTING TO AUTO-DETECT...", "info");
+            initBridgeEndpoint();
+        }
+
+        function showBridgeStatusInfo() {
+            if (isBridgeOnline) {
+                showCmdToast(`CONNECTED: ${bridgeBaseUrl}`, "success");
+            } else {
+                showCmdToast(`BRIDGE STANDBY: Run START_WORLDWIDE_BRIDGE.bat`, "info");
+            }
         }
 
         async function dispatchCmd(order) {
+            showCmdToast(`DISPATCHING: ${order}...`, "info");
             try {
-                await fetch("http://localhost:8080/api/v1/dispatch", {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 6000);
+                const res = await fetch(`${bridgeBaseUrl}/api/v1/dispatch`, {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({order})
+                    body: JSON.stringify({order}),
+                    mode: "cors",
+                    signal: controller.signal
                 });
-            } catch(e) {}
+                clearTimeout(timeoutId);
+
+                const data = await res.json();
+                if (data.status === "dispatched" || data.status === "ok" || res.ok) {
+                    showCmdToast(`EXECUTED: ${order} → ${data.message || 'SUCCESS'}`, "success");
+                } else {
+                    showCmdToast(`RESPONSE: ${data.message || 'DISPATCHED'}`, "info");
+                }
+            } catch(e) {
+                showCmdToast(`DISPATCH FAILED: Check PC Bridge at ${bridgeBaseUrl}`, "error");
+            }
         }
+
+        // Initialize Worldwide Bridge on Page Load
+        initBridgeEndpoint();
+        setInterval(() => { checkBridgeHealth(false); }, 30000);
     </script>
 </body>
 </html>
